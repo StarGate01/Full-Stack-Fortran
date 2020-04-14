@@ -1,0 +1,39 @@
+.PHONY: build clean
+
+FC:=flang
+LLC:=llc
+WLD:=wasm-ld
+FCFLAGS:=--target=wasm32 -emit-llvm -c -S
+LLCFLAGS:=-march=wasm32 -filetype=obj
+WLDFLAGS:=--no-entry --export-all
+
+BLDPATH:=bin
+SRCPATH:=src
+
+NAME:=testlib
+BIN:=$(BLDPATH)/$(NAME).wasm
+SRCS:=$(wildcard $(SRCPATH)/*.f90)
+LLS:=$(SRCS:%.f90=%.ll)
+OBJS:=$(SRCS:%.f90=%.o)
+
+
+build: $(BIN)
+
+$(LLS): $(BLDPATH)/%.ll: $(SRCPATH)/%.f90
+	mkdir -p $(BLDPATH)
+	$(info Compiling to intermediate: $<)
+	$(FC) $< -o $@
+
+$(OBJS): $(BLDPATH)/%.o: $(BLDPATH)/%.ll
+	mkdir -p $(BLDPATH)
+	$(info Compiling to object: $<)
+	$(LLC) $< -o $@
+
+$(BIN): $(OBJS)
+	mkdir -p $(BLDPATH)
+	$(info Linking)
+	$(WLD) -o $(BIN) $(OBJS)
+	
+
+clean:
+	rm -rf $(BLDPATH)
