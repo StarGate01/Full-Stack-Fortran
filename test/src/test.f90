@@ -1,7 +1,16 @@
+module test
 
-function add(a, b) result(res)
-    integer, intent(in)     :: a, b
-    integer                 :: res
+    use, intrinsic :: iso_fortran_env
 
-    res = a * a + b
-end function
+    implicit none
+
+    contains
+
+    function add(a, b) result(res)
+        integer(INT32), intent(in)     :: a, b
+        integer(INT32)                 :: res
+
+        res = a * a + b
+    end function
+
+end module

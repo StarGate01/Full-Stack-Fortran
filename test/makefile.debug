@@ -1,9 +1,9 @@
 .PHONY: build clean
 
-FC:=f18
-LLC:=llc
-WLD:=wasm-ld
-FCFLAGS:=--target=wasm32 -emit-llvm -c -S
+FC:=flang-7
+LLC:=llc-10
+WLD:=wasm-ld-10
+FCFLAGS:=--target=wasm32 -emit-llvm -c -S -m32 -Mfreeform -Mextend -I/usr/lib/x86_64-linux-gnu/fortran/flang-mod-34
 LLCFLAGS:=-march=wasm32 -filetype=obj
 WLDFLAGS:=--no-entry --export-all
 
@@ -19,7 +19,6 @@ OBJS:=$(SRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.o)
 
 
 build: clean $(BIN)
-	cp -f $(STAPATH)/* $(BLDPATH)/
 
 $(LLS): $(BLDPATH)/%.ll: $(SRCPATH)/%.f90
 	mkdir -p $(BLDPATH)
@@ -38,4 +37,4 @@ $(BIN): $(OBJS)
 	
 
 clean:
-	rm -f $(LLS) $(OBJS) $(BIN)
+	rm -f $(LLS) $(OBJS) $(BIN) $(BLDPATH)/*.tmp*
