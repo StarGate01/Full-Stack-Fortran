@@ -8,7 +8,7 @@
         <script type="module">
             async function init() {
                 const { instance } = await WebAssembly.instantiateStreaming(
-                    fetch("../bin/flib.wasm")
+                    fetch("./bin/testlib.wasm")
                 );
                 console.log(instance.exports.add(4, 1));
             }

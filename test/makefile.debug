@@ -9,6 +9,7 @@ WLDFLAGS:=--no-entry --export-all
 
 BLDPATH:=bin
 SRCPATH:=src
+STAPATH:=static
 
 NAME:=testlib
 BIN:=$(BLDPATH)/$(NAME).wasm
@@ -18,6 +19,7 @@ OBJS:=$(SRCS:%.f90=%.o)
 
 
 build: $(BIN)
+	cp -f $(STAPATH)/* $(BLDPATH)/
 
 $(LLS): $(BLDPATH)/%.ll: $(SRCPATH)/%.f90
 	mkdir -p $(BLDPATH)
