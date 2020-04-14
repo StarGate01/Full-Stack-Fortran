@@ -24,17 +24,17 @@ build: clean $(BIN)
 $(LLS): $(BLDPATH)/%.ll: $(SRCPATH)/%.f90
 	mkdir -p $(BLDPATH)
 	$(info Compiling to intermediate: $<)
-	$(FC) $< -o $@
+	$(FC) $(FCFLAGS) $< -o $@
 
 $(OBJS): $(BLDPATH)/%.o: $(BLDPATH)/%.ll
 	mkdir -p $(BLDPATH)
 	$(info Compiling to object: $<)
-	$(LLC) $< -o $@
+	$(LLC) $(LLCFLAGS) $< -o $@
 
 $(BIN): $(OBJS)
 	mkdir -p $(BLDPATH)
 	$(info Linking)
-	$(WLD) -o $(BIN) $(OBJS)
+	$(WLD) $(WLDFLAGS) -o $(BIN) $(OBJS)
 	
 
 clean:
