@@ -1,8 +1,8 @@
 .PHONY: build clean
 
 FC:=flang-7
-LLC:=llc-10
-WLD:=wasm-ld-10
+LLC:=llc-7
+WLD:=wasm-ld-7
 FCFLAGS:=--target=wasm32 -emit-llvm -c -S -m32 -Mfreeform -Mextend -I/usr/lib/x86_64-linux-gnu/fortran/flang-mod-34
 LLCFLAGS:=-march=wasm32 -filetype=obj
 WLDFLAGS:=--no-entry --export-all
@@ -13,14 +13,14 @@ STAPATH:=static
 
 NAME:=testlib
 BIN:=$(BLDPATH)/$(NAME).wasm
-SRCS:=$(wildcard $(SRCPATH)/*.f90)
-LLS:=$(SRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.ll)
-OBJS:=$(SRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.o)
+SRCS:=$(wildcard $(SRCPATH)/*.f03)
+LLS:=$(SRCS:$(SRCPATH)/%.f03=$(BLDPATH)/%.ll)
+OBJS:=$(SRCS:$(SRCPATH)/%.f03=$(BLDPATH)/%.o)
 
 
 build: clean $(BIN)
 
-$(LLS): $(BLDPATH)/%.ll: $(SRCPATH)/%.f90
+$(LLS): $(BLDPATH)/%.ll: $(SRCPATH)/%.f03
 	mkdir -p $(BLDPATH)
 	$(info Compiling to intermediate: $<)
 	$(FC) $(FCFLAGS) $< -o $@

@@ -10,7 +10,7 @@
                 const response = await fetch("./testlib.wasm");
                 const buffer = await response.arrayBuffer();
                 const obj = await WebAssembly.instantiate(buffer);
-                console.log(obj.instance.exports.add_(4, 1));
+                console.log(obj.instance.exports.test_add_(1, 10));
             }
             init();
         </script>
