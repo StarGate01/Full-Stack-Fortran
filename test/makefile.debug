@@ -14,8 +14,8 @@ STAPATH:=static
 NAME:=testlib
 BIN:=$(BLDPATH)/$(NAME).wasm
 SRCS:=$(wildcard $(SRCPATH)/*.f90)
-LLS:=$(SRCS:%.f90=%.ll)
-OBJS:=$(SRCS:%.f90=%.o)
+LLS:=$(SRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.ll)
+OBJS:=$(SRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.o)
 
 
 build: clean $(BIN)
@@ -28,7 +28,7 @@ $(LLS): $(BLDPATH)/%.ll: $(SRCPATH)/%.f90
 
 $(OBJS): $(BLDPATH)/%.o: $(BLDPATH)/%.ll
 	mkdir -p $(BLDPATH)
-	$(info Compiling to object: $<)
+	$(info Assembling to object: $<)
 	$(LLC) $(LLCFLAGS) $< -o $@
 
 $(BIN): $(OBJS)
@@ -38,4 +38,4 @@ $(BIN): $(OBJS)
 	
 
 clean:
-	rm -rf $(BIN) $(OBJS) $(LLS)
+	rm -f $(LLS) $(OBJS) $(BIN)
