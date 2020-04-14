@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Fortran WASM Test</title>
+    </head>
+    <body>
+        <script type="module">
+            async function init() {
+                const response = await fetch("./testlib.wasm");
+                const buffer = await response.arrayBuffer();
+                const obj = await WebAssembly.instantiate(buffer);
+                console.log(obj.instance.exports.add(4, 1));
+            }
+            init();
+        </script>
+    </body>
+</html>
