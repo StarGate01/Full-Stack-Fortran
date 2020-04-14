@@ -1,11 +1,11 @@
 .PHONY: build clean
 
 FC:=flang-7
-LLC:=llc-7
-WLD:=wasm-ld-7
+LLC:=llc-8
+WLD:=wasm-ld-8
 FCFLAGS:=--target=wasm32 -nostdlib -emit-llvm -O3 -c -S -flto -m32 -Mfreeform -Mextend -I/usr/lib/x86_64-linux-gnu/fortran/flang-mod-34
 LLCFLAGS:=-march=wasm32 -filetype=obj -O3
-WLDFLAGS:=--no-entry --lto-O3
+WLDFLAGS:=--no-entry --lto-O3 --allow-undefined
 
 BLDPATH:=bin
 SRCPATH:=src

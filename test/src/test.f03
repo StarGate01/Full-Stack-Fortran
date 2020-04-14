@@ -8,7 +8,6 @@ module test
         integer, value, intent(in)      :: a, b
         integer                         :: res
 
-        write(*,*) "Hello World!"
         res = a * a + b
     end function
 
