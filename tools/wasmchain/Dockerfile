@@ -15,9 +15,9 @@ RUN cd llvm && \
     mkdir build && \
     cd build && \
     cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DLLVM_ENABLE_PROJECTS='mlir;flang' -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=On ../llvm && \
-    ninja
+    ninja -j 6
 RUN cd llvm/build && \
-    ninja check-all
+    ninja install
     
 
 FROM ubuntu:18.04 AS tool
@@ -25,3 +25,7 @@ ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Berlin
 
 COPY --from=build /usr/local /usr/local
 RUN ldconfig
+
+RUN apt-get update && \
+    apt-get -y install --no-install-recommends make bash && \
+    rm -rf /var/lib/apt/lists/*

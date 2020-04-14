@@ -1,6 +1,6 @@
 .PHONY: build clean
 
-FC:=flang
+FC:=f18
 LLC:=llc
 WLD:=wasm-ld
 FCFLAGS:=--target=wasm32 -emit-llvm -c -S
@@ -18,7 +18,7 @@ LLS:=$(SRCS:%.f90=%.ll)
 OBJS:=$(SRCS:%.f90=%.o)
 
 
-build: $(BIN)
+build: clean $(BIN)
 	cp -f $(STAPATH)/* $(BLDPATH)/
 
 $(LLS): $(BLDPATH)/%.ll: $(SRCPATH)/%.f90
@@ -38,4 +38,4 @@ $(BIN): $(OBJS)
 	
 
 clean:
-	rm -rf $(BLDPATH)
+	rm -rf $(BIN) $(OBJS) $(LLS)
