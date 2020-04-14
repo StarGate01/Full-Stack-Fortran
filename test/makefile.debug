@@ -1,11 +1,11 @@
 .PHONY: build clean
 
 FC:=gfortran-4.6
-LLC:=llvm-as
-WLD:=wasm-ld
+LLC:=llvm-as-3.3
+WLD:=wasm-ld-6.0
 FCFLAGS:=-S -flto -m32 -fplugin=/app/dragonegg-3.3.src/dragonegg.so
-LLCFLAGS:=-march=wasm32 -filetype=obj
-WLDFLAGS:=--no-entry --export-all
+LLCFLAGS:=
+WLDFLAGS:=
 
 BLDPATH:=bin
 SRCPATH:=src
@@ -19,7 +19,6 @@ OBJS:=$(SRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.o)
 
 
 build: clean $(BIN)
-	cp -f $(STAPATH)/* $(BLDPATH)/
 
 $(LLS): $(BLDPATH)/%.ll: $(SRCPATH)/%.f90
 	mkdir -p $(BLDPATH)
@@ -38,4 +37,4 @@ $(BIN): $(OBJS)
 	
 
 clean:
-	rm -f $(LLS) $(OBJS) $(BIN)
+	rm -f $(LLS) $(OBJS) $(BIN) $(BLDPATH)/*.tmp*
