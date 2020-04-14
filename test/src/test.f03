@@ -1,5 +1,7 @@
 module test
 
+    use cbind
+
     implicit none
 
     contains
@@ -8,7 +10,8 @@ module test
         integer, value, intent(in)      :: a, b
         integer                         :: res
 
-        res = a * a + b
+        call f90_mkdir("test")
+        res = a * a + b 
     end function
 
 end module
