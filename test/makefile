@@ -1,39 +1,35 @@
 .PHONY: build clean
 
+OPT=-O3
+
 FC:=flang-7
 LLC:=llc-8
 WLD:=emcc
-FCFLAGS:=--target=wasm32 -nostdlib -emit-llvm -O3 -c -S -flto -m32 -Mfreeform -Mextend -I/usr/lib/x86_64-linux-gnu/fortran/flang-mod-34
-LLCFLAGS:=-march=wasm32 -filetype=obj -O3
-WLDFLAGS:=-O3 --cache /project/bin/.emscripten_cache -s LINKABLE=1 -s EXPORT_ALL=1
+FCFLAGS:=--target=wasm32 -nostdlib -emit-llvm -m32 $(OPT) -c -S -flto -Mpreprocess -Mfreeform -Mextend -I/usr/lib/x86_64-linux-gnu/fortran/flang-mod-34 -nomp
+LLCFLAGS:=-march=wasm32 -filetype=obj $(OPT)
+WLDFLAGS:=$(OPT) --cache /project/bin/.emscripten_cache -s EXPORTED_FUNCTIONS='["_test_add_"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
 
 BLDPATH:=bin
 SRCPATH:=src
 STAPATH:=static
 
 NAME:=testlib
-BIN:=$(BLDPATH)/$(NAME).html
-SRCS:=$(wildcard $(SRCPATH)/*.f03)
-LLS:=$(SRCS:$(SRCPATH)/%.f03=$(BLDPATH)/%.ll)
-OBJS:=$(SRCS:$(SRCPATH)/%.f03=$(BLDPATH)/%.o)
-
+BIN:=$(BLDPATH)/$(NAME).js
+FSRCS:=$(wildcard $(SRCPATH)/*.f90)
+FLLS:=$(FSRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.ll)
 
 build: clean $(BIN)
+	cp -f $(STAPATH)/* $(BLDPATH)
 
-$(LLS): $(BLDPATH)/%.ll: $(SRCPATH)/%.f03
+$(FLLS): $(BLDPATH)/%.ll: $(SRCPATH)/%.f90
 	mkdir -p $(BLDPATH)
-	$(info Compiling to intermediate: $<)
+	$(info Compiling fortran to intermediate: $<)
 	$(FC) $(FCFLAGS) $< -o $@
 
-$(OBJS): $(BLDPATH)/%.o: $(BLDPATH)/%.ll
-	mkdir -p $(BLDPATH)
-	$(info Assembling to object: $<)
-	$(LLC) $(LLCFLAGS) $< -o $@
-
-$(BIN): $(OBJS)
+$(BIN): $(FLLS)
 	mkdir -p $(BLDPATH)
 	$(info Linking)
-	$(WLD) $(WLDFLAGS) -o $(BIN) $(OBJS)
-
+	$(WLD) $(WLDFLAGS) -o $(BIN) $(FLLS)
+	
 clean:
-	find . ! -name '.emscripten_cache' -type f -exec rm -rf {} +
+	cd $(BLDPATH) && rm -f *.html *.js *.wasm *.ll *.o

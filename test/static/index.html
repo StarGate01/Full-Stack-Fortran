@@ -5,14 +5,12 @@
         <title>Fortran WASM Test</title>
     </head>
     <body>
-        <script type="module">
-            async function init() {
-                const response = await fetch("./testlib.wasm");
-                const buffer = await response.arrayBuffer();
-                const obj = await WebAssembly.instantiate(buffer);
-                console.log(obj.instance.exports.test_add_(1, 10));
-            }
-            init();
+        <script src="testlib.js"></script>
+        <script>
+            Module.onRuntimeInitialized = _ => {
+                const add = Module.cwrap('test_add_', 'number', ['number', 'number']);
+                console.log(add(5, 7));
+            };
         </script>
     </body>
 </html>
