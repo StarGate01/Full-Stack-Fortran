@@ -1,7 +1,7 @@
 .PHONY: build clean
 
 FC:=flang
-FCFLAGS:=--target=wasm32 -nostdlib -Wl,--no-entry -Wl,--export-all
+FCFLAGS:=--target=wasm32 -nostdlib -Wl,--no-entry -Wl,--export-all -i8 -r8 -noFlangLibs -nomp -Mextend -Mfreeform -fno-fortran-main
 
 BLDPATH:=bin
 SRCPATH:=src
@@ -22,4 +22,4 @@ $(BIN): $(SRCS)
 	
 
 clean:
-	rm -rf $(BLDPATH)
+	rm -f $(BIN)
