@@ -2,11 +2,9 @@
 
 OPT=-O3
 
-FC:=flang-7
-LLC:=llc-8
+FC:=lfort
 WLD:=emcc
-FCFLAGS:=--target=wasm32 -nostdlib -emit-llvm -m32 $(OPT) -c -S -flto -Mpreprocess -Mfreeform -Mextend -I/usr/lib/x86_64-linux-gnu/fortran/flang-mod-34 -nomp
-LLCFLAGS:=-march=wasm32 -filetype=obj $(OPT)
+FCFLAGS:=-emit-llvm $(OPT) -c -S
 WLDFLAGS:=$(OPT) --cache /project/bin/.emscripten_cache -s EXPORTED_FUNCTIONS='["_test_add_"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
 
 BLDPATH:=bin
