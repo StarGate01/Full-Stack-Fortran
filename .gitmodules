@@ -1,3 +1,0 @@
-[submodule "test/src/lib/flang"]
-	path = test/src/lib/flang
-	url = https://github.com/StarGate01/flang-runtime-wasm.git
