@@ -18,22 +18,24 @@ RUN tar -xzf cmake.tar.gz && \
     make -j4 && \
     make install
 
-ARG LLVM_REV="b43612401077912a577fd9700c7284b6e676f3fe"
+ARG LLVM_REV="465d2ab836ab3907916652ac93a715364b53e0b2"
 RUN wget https://github.com/llvm/llvm-project/archive/${LLVM_REV}.tar.gz -O llvm.tar.gz
 RUN tar -xzf llvm.tar.gz && \
     mv llvm-project* llvm
 RUN cd llvm && \
     mkdir build && \
     cd build && \
-    CC=gcc-5 CXX=g++-5  cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DLLVM_ENABLE_PROJECTS='lld;clang' -DLLVM_TARGETS_TO_BUILD="host;WebAssembly" \
+    CC=gcc-4.6 CXX=g++-4.6 cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DLLVM_ENABLE_PROJECTS='lld;clang' -DLLVM_TARGETS_TO_BUILD= -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD=WebAssembly \
         -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=On ../llvm && \
     ninja -j 4 && \
     ninja install
 
-# RUN wget https://llvm.org/releases/3.3/dragonegg-3.3.src.tar.gz && \
-#     tar xzf dragonegg-3.3.src.tar.gz && \
-#     cd dragonegg-3.3.src && \
-#     LLVM_CONFIG=llvm-config GCC=gcc-4.6 CXX=g++-4.6 make
+COPY scripts /app/scripts
+
+RUN wget https://llvm.org/releases/3.3/dragonegg-3.3.src.tar.gz && \
+    tar xzf dragonegg-3.3.src.tar.gz && \
+    cd dragonegg-3.3.src && \
+    LLVM_CONFIG=/app/scripts/llvm-config.sh GCC=gcc-4.6 CC=gcc-4.6 CXX=g++-4.6 make VERBOSE=1
 
 # # RUN git clone https://github.com/emscripten-core/emsdk.git
 # # ARG EMS_VERSION="1.39.12"
@@ -41,13 +43,24 @@ RUN cd llvm && \
 # #     ./emsdk install ${EMS_VERSION} && \
 # #     ./emsdk activate ${EMS_VERSION}
 
-# ARG EMS_VERSION="1.32.3"
-# RUN wget https://github.com/emscripten-core/emscripten/archive/${EMS_VERSION}.tar.gz && \
-#     tar xzf ${EMS_VERSION}.tar.gz
+# ARG BYEN_REV="dfb2f27d0123ad62b44914fd0210db1d21cfc91e"
+# RUN wget https://github.com/WebAssembly/binaryen/archive/${LLVM_REV}.tar.gz -O binaryen.tar.gz
+# RUN tar -xzf binaryen.tar.gz && \
+#     mv binaryen-project* binaryen
+# RUN cd binaryen && \
+#     mkdir build && \
+#     cd build && \
+#     CC=gcc-5 CXX=g++-5 cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local .. && \
+#     ninja -j 4 && \
+#     ninja install
 
-# RUN apt-get update && \
-#     apt-get -y install --no-install-recommends python && \
-#     rm -rf /var/lib/apt/lists/*
+# RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+
+# ARG EMS_VERSION="1.32.3"
+# RUN wget https://github.com/emscripten-core/emscripten/archive/${EMS_VERSION}.tar.gz -O emscripten.tar.gz && \
+#     tar -xzf emscripten.tar.gz && \
+#     mv emscripten-* emscripten
+
 
 # # RUN cd emscripten-${EMS_VERSION} && \
 # #     ./emsdk install ${EMS_VERSION} && \
@@ -55,4 +68,3 @@ RUN cd llvm && \
 
 # # RUN touch /app/.emscripten
 # # ENV EM_CONFIG=/app/.emscripten
-# COPY scripts /app/scripts
