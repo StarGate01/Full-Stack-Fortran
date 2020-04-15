@@ -1,6 +1,12 @@
 module test
 
+    use, intrinsic :: iso_c_binding
+
     implicit none
+
+    !include "src/lib/externals.f90"
+
+    integer, external :: f90_test
 
     contains
 
@@ -9,7 +15,7 @@ module test
         integer                         :: res
 
         write(*,*) "Hello World!"
-        res = a * a + b
+        res = a * a + b + f90_test(a)
     end function
 
 end module

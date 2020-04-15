@@ -2,4 +2,5 @@ version: '3'
 
 services:
   wasmchain:
+    image: wasmchain:flang7
     build: ./wasmchain

@@ -1,0 +1,1 @@
+#define F90(name) __attribute__((visibility("default"))) f90_##name##_

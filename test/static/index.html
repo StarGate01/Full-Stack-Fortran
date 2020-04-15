@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Fortran WASM Test</title>
+    </head>
+    <body>
+        <script src="testlib.js"></script>
+        <script>
+            Module.onRuntimeInitialized = _ => {
+                const add = Module.cwrap('test_add_', 'number', ['number', 'number']);
+                console.log(add(5, 7));
+            };
+        </script>
+    </body>
+</html>
