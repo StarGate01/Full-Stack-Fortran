@@ -1,38 +1,41 @@
 .PHONY: build clean
 
+OPT:=-O3
+
 FC:=f18
-LLC:=llc-8
-WLD:=wasm-ld-8
-FCFLAGS:=--target=wasm32 -nostdlib -emit-llvm -O3 -c -S -flto -m32 -Mfree -Mextend -module bin
-LLCFLAGS:=-march=wasm32 -filetype=obj -O3
-WLDFLAGS:=--no-entry --lto-O3 --allow-undefined
+WLD:=emcc
+WLDS:=/app/scripts/shim.sh
+FCFLAGS:=--target=wasm32 -nostdlib -emit-llvm $(OPT) -c -S -flto -m32 -Mfree -Mextend -module bin -I/app/pgi/linux86-64-llvm/19.10/include
+WLDFLAGS:=$(OPT) --cache /project/bin/.emscripten_cache -s EXPORTED_FUNCTIONS='["___test_MOD_add"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
 
 BLDPATH:=bin
 SRCPATH:=src
 STAPATH:=static
 
 NAME:=testlib
-BIN:=$(BLDPATH)/$(NAME).wasm
-SRCS:=$(wildcard $(SRCPATH)/*.f90)
-LLS:=$(SRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.ll)
-OBJS:=$(SRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.o)
+BIN:=$(BLDPATH)/$(NAME).js
+FSRCS:=$(wildcard $(SRCPATH)/*.f90)
+ASRC:=$(BLDPATH)/$(NAME).f90
+FLLPRE:=$(BLDPATH)/$(NAME).llpre
+FLLPOST:=$(BLDPATH)/$(NAME).ll
 
+build: $(BLDPATH) $(BIN)
+	cp -f $(STAPATH)/* $(BLDPATH)
 
-build: clean $(BIN)
+$(ASRC): $(FSRCS)
+	cat $^ > $@
 
-$(LLS): $(BLDPATH)/%.ll: $(SRCPATH)/%.f90
-	mkdir -p $(BLDPATH)
+$(FLLPRE): $(ASRC)
 	$(FC) $(FCFLAGS) $< -o $@
 
-$(OBJS): $(BLDPATH)/%.o: $(BLDPATH)/%.ll
-	mkdir -p $(BLDPATH)
-	$(LLC) $(LLCFLAGS) $< -o $@
+$(FLLPOST): $(FLLPRE)
+	$(WLDS) $< $@
 
-$(BIN): $(OBJS)
+$(BIN): $(FLLPOST)
+	$(WLD) $(WLDFLAGS) -o $@ $<
+
+$(BLDPATH):
 	mkdir -p $(BLDPATH)
-	$(WLD) $(WLDFLAGS) -o $(BIN) $(OBJS)
-	
 
 clean:
-	mkdir -p $(BLDPATH)
-	rm -f $(LLS) $(OBJS) $(BIN) $(BLDPATH)/*.tmp*
+	cd $(BLDPATH) && rm -f *.html *.js *.wasm *.ll *.llpre *.o *.f90

@@ -18,14 +18,14 @@ RUN cd llvm && \
     ninja -j 4 && \
     ninja install
 
-COPY vendor/pgilinux-2019-1910-x86-64.tar.gz pgilinux-2019-1910-x86-64.tar.gz
-RUN mkdir pgilinux && \
-    tar xvzf pgilinux-2019-1910-x86-64.tar.gz -C pgilinux && \
-    cd pgilinux && \
-    PGI_SILENT=true PGI_ACCEPT_EULA=accept PGI_INSTALL_DIR=/app/pgi PGI_INSTALL_TYPE=single \
-        PGI_INSTALL_NVIDIA=false PGI_INSTALL_JAVA=false PGI_INSTALL_MPI=false PGI_MPI_GPU_SUPPORT=false \
-        ./install
-ENV PGI=/app/pgi PATH="/app/pgi/linux86-64/19.10/bin:${PATH}" LM_LICENSE_FILE=/app/pgi/license.dat
+# COPY vendor/pgilinux-2019-1910-x86-64.tar.gz pgilinux-2019-1910-x86-64.tar.gz
+# RUN mkdir pgilinux && \
+#     tar xvzf pgilinux-2019-1910-x86-64.tar.gz -C pgilinux && \
+#     cd pgilinux && \
+#     PGI_SILENT=true PGI_ACCEPT_EULA=accept PGI_INSTALL_DIR=/app/pgi PGI_INSTALL_TYPE=single \
+#         PGI_INSTALL_NVIDIA=false PGI_INSTALL_JAVA=false PGI_INSTALL_MPI=false PGI_MPI_GPU_SUPPORT=false \
+#         ./install
+# ENV PGI=/app/pgi PATH="/app/pgi/linux86-64/19.10/bin:${PATH}" LM_LICENSE_FILE=/app/pgi/license.dat
 
 
 FROM ubuntu:18.04 AS tool
@@ -44,3 +44,4 @@ ARG EMS_VERSION="1.39.12"
 RUN cd emsdk && \
     ./emsdk install ${EMS_VERSION} && \
     ./emsdk activate ${EMS_VERSION}
+ENV PATH="/app/emsdk:/app/emsdk/node/12.9.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
