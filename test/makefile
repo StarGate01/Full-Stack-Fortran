@@ -19,7 +19,7 @@ ASRC:=$(BLDPATH)/$(NAME).f90
 FLLPRE:=$(BLDPATH)/$(NAME).llpre
 FLLPOST:=$(BLDPATH)/$(NAME).ll
 
-build: $(BLDPATH) $(BIN)
+build: clean $(BLDPATH) $(BIN)
 	cp -f $(STAPATH)/* $(BLDPATH)
 
 $(ASRC): $(FSRCS)
