@@ -1,8 +1,12 @@
-FROM ubuntu:14.04
+FROM ubuntu:18.04
 ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Berlin
 
-RUN apt-get update && \
-    apt-get -y install --no-install-recommends build-essential wget git gnutls-bin python bash make ca-certificates xz-utils \
+RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted universe" >> /etc/apt/sources.list && \
+    echo "deb http://security.ubuntu.com/ubuntu/ trusty-security main" >> /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get -y install --no-install-recommends \
+        build-essential python3 python3-distutils \
+        wget git gnutls-bin bash make ca-certificates xz-utils \
         gfortran-4.6 g++-4.6 gcc-4.6 gcc-4.6-plugin-dev llvm-3.3-dev && \
     rm -rf /var/lib/apt/lists/*
 
@@ -26,6 +30,7 @@ WORKDIR /app
 #         -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=On ../llvm && \
 #     ninja -j 4 && \
 #     ninja install
+
 
 RUN wget https://llvm.org/releases/3.3/dragonegg-3.3.src.tar.gz && \
     tar xzf dragonegg-3.3.src.tar.gz && \
