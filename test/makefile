@@ -3,7 +3,7 @@
 FC:=f18
 LLC:=llc-8
 WLD:=wasm-ld-8
-FCFLAGS:=--target=wasm32 -nostdlib -emit-llvm -O3 -c -S -flto -m32
+FCFLAGS:=--target=wasm32 -nostdlib -emit-llvm -O3 -c -S -flto -m32 -Mfree -Mextend -module bin
 LLCFLAGS:=-march=wasm32 -filetype=obj -O3
 WLDFLAGS:=--no-entry --lto-O3 --allow-undefined
 
@@ -13,28 +13,26 @@ STAPATH:=static
 
 NAME:=testlib
 BIN:=$(BLDPATH)/$(NAME).wasm
-SRCS:=$(wildcard $(SRCPATH)/*.f03)
-LLS:=$(SRCS:$(SRCPATH)/%.f03=$(BLDPATH)/%.ll)
-OBJS:=$(SRCS:$(SRCPATH)/%.f03=$(BLDPATH)/%.o)
+SRCS:=$(wildcard $(SRCPATH)/*.f90)
+LLS:=$(SRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.ll)
+OBJS:=$(SRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.o)
 
 
 build: clean $(BIN)
 
-$(LLS): $(BLDPATH)/%.ll: $(SRCPATH)/%.f03
+$(LLS): $(BLDPATH)/%.ll: $(SRCPATH)/%.f90
 	mkdir -p $(BLDPATH)
-	$(info Compiling to intermediate: $<)
 	$(FC) $(FCFLAGS) $< -o $@
 
 $(OBJS): $(BLDPATH)/%.o: $(BLDPATH)/%.ll
 	mkdir -p $(BLDPATH)
-	$(info Assembling to object: $<)
 	$(LLC) $(LLCFLAGS) $< -o $@
 
 $(BIN): $(OBJS)
 	mkdir -p $(BLDPATH)
-	$(info Linking)
 	$(WLD) $(WLDFLAGS) -o $(BIN) $(OBJS)
 	
 
 clean:
+	mkdir -p $(BLDPATH)
 	rm -f $(LLS) $(OBJS) $(BIN) $(BLDPATH)/*.tmp*
