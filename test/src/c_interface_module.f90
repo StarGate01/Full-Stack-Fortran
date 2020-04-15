@@ -18,7 +18,6 @@ module C_interface_module
       C_ptr => C_ptr , &
       C_char_ptr => C_ptr, &
       C_const_char_ptr => C_ptr, &
-      C_void_ptr => C_ptr, &
       C_const_void_ptr => C_ptr
 
   implicit none
@@ -99,29 +98,29 @@ module C_interface_module
 ! Copy N bytes of SRC to DEST, no aliasing or overlapping allowed.
 !extern void *memcpy (void *dest, const void *src, size_t n);
     function C_memcpy(dest, src, n) result(result) bind(C,name="memcpy")
-      import C_void_ptr, C_size_t
-      type(C_void_ptr) :: result
-      type(C_void_ptr), value, intent(in) :: dest ! target=intent(out)
-      type(C_void_ptr), value, intent(in) :: src  ! target=intent(in)
+      import C_ptr, C_size_t
+      type(C_ptr) :: result
+      type(C_ptr), value, intent(in) :: dest ! target=intent(out)
+      type(C_ptr), value, intent(in) :: src  ! target=intent(in)
       integer(C_size_t), value, intent(in) :: n
     end function C_memcpy
 
 ! Copy N bytes of SRC to DEST, guaranteeing correct behavior for overlapping strings.
 !extern void *memmove (void *dest, const void *src, size_t n)
     function C_memmove(dest, src, n) result(result) bind(C,name="memmove")
-      import C_void_ptr, C_size_t
-      type(C_void_ptr) :: result
-      type(C_void_ptr), value, intent(in) :: dest ! target=intent(out)
-      type(C_void_ptr), value, intent(in) :: src
+      import C_ptr, C_size_t
+      type(C_ptr) :: result
+      type(C_ptr), value, intent(in) :: dest ! target=intent(out)
+      type(C_ptr), value, intent(in) :: src
       integer(C_size_t), value, intent(in) :: n
     end function C_memmove
 
 ! Set N bytes of S to C.
 !extern void *memset (void *s, int c, size_t n)
     function C_memset(s, c, n) result(result) bind(C,name="memset")
-      import C_void_ptr, C_int, C_size_t
-      type(C_void_ptr) :: result
-      type(C_void_ptr), value, intent(in) :: s ! target=intent(out)
+      import C_ptr, C_int, C_size_t
+      type(C_ptr) :: result
+      type(C_ptr), value, intent(in) :: s ! target=intent(out)
       integer(C_int), value, intent(in) :: c
       integer(C_size_t), value, intent(in) :: n
     end function C_memset
@@ -130,10 +129,10 @@ module C_interface_module
 !extern int memcmp (const void *s1, const void *s2, size_t n)
     pure &
     function C_memcmp(s1, s2, n) result(result) bind(C,name="memcmp")
-      import C_int, C_void_ptr, C_size_t
+      import C_int, C_ptr, C_size_t
       integer(C_int) :: result
-      type(C_void_ptr), value, intent(in) :: s1
-      type(C_void_ptr), value, intent(in) :: s2
+      type(C_ptr), value, intent(in) :: s1
+      type(C_ptr), value, intent(in) :: s2
       integer(C_size_t), value, intent(in) :: n
     end function C_memcmp
 
@@ -141,9 +140,9 @@ module C_interface_module
 !extern void *memchr (const void *s, int c, size_t n)
     pure &
     function C_memchr(s, c, n) result(result) bind(C,name="memchr")
-      import C_void_ptr, C_int, C_size_t
-      type(C_void_ptr) :: result
-      type(C_void_ptr), value, intent(in) :: s
+      import C_ptr, C_int, C_size_t
+      type(C_ptr) :: result
+      type(C_ptr), value, intent(in) :: s
       integer(C_int), value, intent(in) :: c
       integer(C_size_t), value, intent(in) :: n
     end function C_memchr
@@ -224,30 +223,30 @@ module C_interface_module
   interface
 
     ! void *calloc(size_t nmemb, size_t size);
-    type(C_void_ptr) &
+    type(C_ptr) &
     function C_calloc(nmemb, size) bind(C,name="calloc")
-      import C_void_ptr, C_size_t
+      import C_ptr, C_size_t
       integer(C_size_t), value, intent(in) :: nmemb, size
     end function C_calloc
 
     ! void *malloc(size_t size);
-    type(C_void_ptr) &
+    type(C_ptr) &
     function C_malloc(size) bind(C,name="malloc")
-      import C_void_ptr, C_size_t
+      import C_ptr, C_size_t
       integer(C_size_t), value, intent(in) :: size
     end function C_malloc
 
     ! void free(void *ptr);
     subroutine C_free(ptr) bind(C,name="free")
-      import C_void_ptr
-      type(C_void_ptr), value, intent(in) :: ptr
+      import C_ptr
+      type(C_ptr), value, intent(in) :: ptr
     end subroutine C_free
 
     ! void *realloc(void *ptr, size_t size);
-    type(C_void_ptr) &
+    type(C_ptr) &
     function C_realloc(ptr,size) bind(C,name="realloc")
-      import C_void_ptr, C_size_t
-      type(C_void_ptr), value, intent(in) :: ptr
+      import C_ptr, C_size_t
+      type(C_ptr), value, intent(in) :: ptr
       integer(C_size_t), value, intent(in) :: size
     end function C_realloc
 
@@ -362,19 +361,19 @@ contains
     end if
   end function C_strlen_safe
 
-  function C_string_value(C_string) result(F_string)
-    type(C_ptr), intent(in) :: C_string
-    character(len=C_strlen_safe(C_string)) :: F_string
-    character(len=1,kind=C_char), dimension(:), pointer :: p_chars
-    integer :: i, length
-    length = len(F_string)
-    if (length/=0) then
-      call C_F_pointer(C_string,p_chars,[length])
-      forall (i=1:length)
-        F_string(i:i) = p_chars(i)
-      end forall
-    end if
-  end function C_string_value
+  ! function C_string_value(C_string) result(F_string)
+  !   type(C_ptr), intent(in) :: C_string
+  !   character(len=C_strlen_safe(C_string)) :: F_string
+  !   character(len=1,kind=C_char), dimension(:), pointer :: p_chars
+  !   integer :: i, length
+  !   length = len(F_string)
+  !   if (length/=0) then
+  !     call C_F_pointer(C_string,p_chars,[length])
+  !     forall (i=1:length)
+  !       F_string(i:i) = p_chars(i)
+  !     end forall
+  !   end if
+  ! end function C_string_value
 
 ! Copy a Fortran string to a C string passed by char-array reference.
 ! If the length is not passed, the C string must be at least: len(F_string)+1
