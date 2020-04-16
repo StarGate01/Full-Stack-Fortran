@@ -1,17 +1,16 @@
 .PHONY: build clean
 
-rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
-
 OPT:=-O3
-
 FC:=flang-7
 CC:=emcc
 WLD:=emcc
 WLDS:=/app/scripts/shim.sh
-FCFLAGS:=--target=wasm32 -nostdlib -emit-llvm -c -S -flto $(OPT) -m32 -Mfreeform -Mextend -I/usr/lib/x86_64-linux-gnu/fortran/flang-mod-34
-CCFLAGS:=--target=wasm32 $(OPT) -c -S -flto -m32 -s LINKABLE=1 -s EXPORT_ALL=1 -Isrc/lib/flang/include -Isrc/lib/flang/runtime -Isrc/lib/flang/runtime/include -Isrc/lib/include
-EMSFLAGS:=$(OPT) -m32 --cache /project/bin/.emscripten_cache --emit-symbol-map --llvm-opts "['$(OPT)']" --closure 1
+
+FCFLAGS:=--target=wasm32 -nostdlib $(OPT) -m32 -Mfreeform -Mextend -I/usr/lib/x86_64-linux-gnu/fortran/flang-mod-34
+CCFLAGS:=--target=wasm32 $(OPT) -c -S -flto -m32 -s LINKABLE=1 -s EXPORT_ALL=1 -Isrc/lib -Isrc
+EMSFLAGS:=$(OPT) -m32 --cache /project/bin/.emscripten_cache --llvm-opts "['$(OPT)']" --closure 1
 WLDFLAGS:=-s EXPORTED_FUNCTIONS='["_test_add_"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
+
 
 BLDPATH:=bin
 SRCPATH:=src
@@ -19,45 +18,46 @@ STAPATH:=static
 
 NAME:=testlib
 BIN:=$(BLDPATH)/$(NAME).js
-FSRCS:=$(call rwildcard,$(SRCPATH),*.f90)
-LIBSRCS:=$(call rwildcard,$(SRCPATH)/lib,*.c)
-ASRC:=$(BLDPATH)/$(NAME).f90
-ALLSTAT:=$(BLDPATH)/$(NAME).bc
-FLLPRE:=$(BLDPATH)/$(NAME).llpre
-FLLPOST:=$(BLDPATH)/$(NAME).ll
-LIBFLLS:=$(LIBSRCS:$(SRCPATH)/lib/%.c=$(BLDPATH)/lib/%.ll)
-# EXT:=$(SRCPATH)/externals.f90
+OBJ:=$(BLDPATH)/$(NAME).bc
 
-build: clean $(BLDPATH)/lib $(BIN)
+FSRCSNAMES:=test.f90
+CSRCSNAMES:=f90lib.c
+
+FSRCS:=$(FSRCSNAMES:%=$(SRCPATH)/%)
+CSRCS:=$(CSRCSNAMES:%=$(SRCPATH)/%)
+
+FLLS:=$(FSRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.f90.ll)
+FMODS:=$(FSRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.mod)
+CLLS:=$(CSRCS:$(SRCPATH)/%.c=$(BLDPATH)/%.c.ll)
+
+build: clean $(BIN)
 	cp -f $(STAPATH)/* $(BLDPATH)
 
-$(ASRC): $(FSRCS)
-	cat $^ > $@
-
-# $(EXT): $(LIBSRCS)
-	# echo "" > $(EXT)
-	# for f in $^; do cproto -s $$f >> $(EXT); done
-
-#$(EXT)
-
-$(FLLPRE): $(ASRC)
-	$(FC) $(FCFLAGS) $< -o $@
-
-$(FLLPOST): $(FLLPRE)
+$(BLDPATH)/%.f90.ll: $(BLDPATH)/%.f90.llpre
+	$(shell mkdir -p $(dir $@))
 	$(WLDS) $< $@
 
-$(LIBFLLS): $(BLDPATH)/lib/%.ll: $(SRCPATH)/lib/%.c
+$(BLDPATH)/%.f90.llpre: $(BLDPATH)/%.mod
 	$(shell mkdir -p $(dir $@))
-	$(CC) $(CCFLAGS) $< -o $@
+	$(FC) $(FCFLAGS) -emit-llvm -S -flto -o $(@:$(BLDPATH)/%.mod=$(SRCPATH)/%.f90) -c $<
 
-$(ALLSTAT): $(LIBFLLS) $(FLLPOST)
+$(BLDPATH)/%.mod: $(SRCPATH)/%.f90
+	$(shell mkdir -p $(dir $@))
+	$(FC) $(FCFLAGS) -o $@ -c $< 
+
+$(BLDPATH)/%.c.ll: $(SRCPATH)/%.c
+	$(shell mkdir -p $(dir $@))
+	$(CC) $(CCFLAGS) -o $@ $< 
+
+$(OBJ): $(FLLS) $(CLLS)
+	$(shell mkdir -p $(dir $@))
 	$(WLD) $(EMSFLAGS) -o $@ $^
 
-$(BIN): $(ALLSTAT)
+$(BIN): $(OBJ)
+	$(shell mkdir -p $(dir $@))
 	$(WLD) $(EMSFLAGS) $(WLDFLAGS) -o $@ $<
 
-$(BLDPATH)/lib:
-	mkdir -p $(BLDPATH)/lib
-
 clean:
-	cd $(BLDPATH) && rm -f *.html *.js *.wasm *.ll *.llpre *.o *.f90 && rm -rf lib
+	$(info $(shell ls))
+	mkdir -p $(BLDPATH)
+	cd $(BLDPATH) && rm -f *.html *.js *.wasm *.ll *.llpre *.o *.f90 *.bc && rm -rf lib
