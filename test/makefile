@@ -6,10 +6,10 @@ CC:=emcc
 WLD:=emcc
 
 FCFLAGS:=--target=wasm32 -nostdlib $(OPT) -m32 -Mfreeform -Mextend -Ibin -Jbin -Mpreprocess -i8 -r8
-CCFLAGS:=--target=wasm32 $(OPT) -c -S -flto -m32 -s LINKABLE=1 -s EXPORT_ALL=1 -Isrc/lib -Isrc -DDESC_I8
+CCFLAGS:=--target=wasm32 $(OPT) -c -S -flto -m32 -s LINKABLE=1 -s EXPORT_ALL=1 \
+	-Isrc -Isrc/flang/include -Isrc/flang/runtime/include -Isrc/flang/tools/shared -Isrc/flang/tools/shared/utils -Isrc/flang/tools/shared/utils/common -Ibin/flang/utils/errmsg \
 EMSFLAGS:=$(OPT) -m32 --cache /project/bin/.emscripten_cache --llvm-opts "['$(OPT)']" --closure 1
 WLDFLAGS:=-s EXPORTED_FUNCTIONS='["_test_add_"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
-
 
 BLDPATH:=bin
 SRCPATH:=src
@@ -20,17 +20,18 @@ BIN:=$(BLDPATH)/$(NAME).js
 OBJ:=$(BLDPATH)/$(NAME).bc
 
 FSRCSNAMES:=iso_c_binding.f90 c_interface_module.f90 test.f90
-CSRCSNAMES:=
+CSRCSNAMES:=f90lib.c
 
 FSRCS:=$(FSRCSNAMES:%=$(SRCPATH)/%)
-CSRCS:=$(wildcard $(SRCPATH)/*.c)
+CSRCS:=$(CSRCSNAMES:%=$(SRCPATH)/%)
 
 FLLS:=$(FSRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.f90.ll)
 CLLS:=$(CSRCS:$(SRCPATH)/%.c=$(BLDPATH)/%.c.ll)
 
-build: clean $(BIN)
-	cp -f $(STAPATH)/* $(BLDPATH)
+include flangmake/makefile
 
+build: clean flang $(BIN)
+	cp -f $(STAPATH)/* $(BLDPATH)
 
 $(BLDPATH)/%.f90.ll: $(SRCPATH)/%.f90
 	$(shell mkdir -p $(dir $@))
@@ -49,5 +50,5 @@ $(BIN): $(OBJ)
 	$(WLD) $(EMSFLAGS) $(WLDFLAGS) -o $@ $<
 
 clean:
-	mkdir -p $(BLDPATH)
-	cd $(BLDPATH) && rm -f *.html *.js *.wasm *.ll *.llpre *.o *.f90 *.bc *.mod
+	rm -rf $(BLDPATH)
+	
