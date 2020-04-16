@@ -5,8 +5,8 @@ FC:=flang-7
 CC:=emcc
 WLD:=emcc
 
-FCFLAGS:=--target=wasm32 -nostdlib $(OPT) -m32 -Mfreeform -Mextend -Ibin -Jbin -Mpreprocess
-CCFLAGS:=--target=wasm32 $(OPT) -c -S -flto -m32 -s LINKABLE=1 -s EXPORT_ALL=1 -Isrc/lib -Isrc
+FCFLAGS:=--target=wasm32 -nostdlib $(OPT) -m32 -Mfreeform -Mextend -Ibin -Jbin -Mpreprocess -i8 -r8
+CCFLAGS:=--target=wasm32 $(OPT) -c -S -flto -m32 -s LINKABLE=1 -s EXPORT_ALL=1 -Isrc/lib -Isrc -DDESC_I8
 EMSFLAGS:=$(OPT) -m32 --cache /project/bin/.emscripten_cache --llvm-opts "['$(OPT)']" --closure 1
 WLDFLAGS:=-s EXPORTED_FUNCTIONS='["_test_add_"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
 
