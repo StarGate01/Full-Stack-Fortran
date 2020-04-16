@@ -5,10 +5,10 @@ FC:=flang-7
 CC:=emcc
 WLD:=emcc
 
-FCFLAGS:=--target=wasm32 -nostdlib $(OPT) -m32 -Mfreeform -Mextend -I/usr/lib/x86_64-linux-gnu/fortran/flang-mod-34 -Ibin -Jbin
+FCFLAGS:=--target=wasm32 -nostdlib $(OPT) -m32 -Mfreeform -Mextend -Ibin -Jbin -Mpreprocess
 CCFLAGS:=--target=wasm32 $(OPT) -c -S -flto -m32 -s LINKABLE=1 -s EXPORT_ALL=1 -Isrc/lib -Isrc
 EMSFLAGS:=$(OPT) -m32 --cache /project/bin/.emscripten_cache --llvm-opts "['$(OPT)']" --closure 1
-WLDFLAGS:=-s EXPORTED_FUNCTIONS='["_test_add_", "_f90_c_f_ptr_i8_"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
+WLDFLAGS:=-s EXPORTED_FUNCTIONS='["_test_add_"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
 
 
 BLDPATH:=bin
@@ -19,11 +19,11 @@ NAME:=assembly
 BIN:=$(BLDPATH)/$(NAME).js
 OBJ:=$(BLDPATH)/$(NAME).bc
 
-FSRCSNAMES:=c_interface_module.f90 test.f90
-CSRCSNAMES:=f90lib.c
+FSRCSNAMES:=iso_c_binding.f90 c_interface_module.f90 test.f90
+CSRCSNAMES:=
 
 FSRCS:=$(FSRCSNAMES:%=$(SRCPATH)/%)
-CSRCS:=$(CSRCSNAMES:%=$(SRCPATH)/%)
+CSRCS:=$(wildcard $(SRCPATH)/*.c)
 
 FLLS:=$(FSRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.f90.ll)
 CLLS:=$(CSRCS:$(SRCPATH)/%.c=$(BLDPATH)/%.c.ll)
@@ -40,7 +40,7 @@ $(BLDPATH)/%.c.ll: $(SRCPATH)/%.c
 	$(shell mkdir -p $(dir $@))
 	$(CC) $(CCFLAGS) -o $@ $< 
 
-$(OBJ): $(FLLS) $(CLLS)
+$(OBJ): $(CLLS) $(FLLS)
 	$(shell mkdir -p $(dir $@))
 	$(WLD) $(EMSFLAGS) -o $@ $^
 
