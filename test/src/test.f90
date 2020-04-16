@@ -1,10 +1,12 @@
 module test
 
-    use c_interface_module
+    ! use c_interface_module
 
     implicit none
 
     ! integer, external :: write !$PRAGMA C(write) 
+
+    integer, parameter :: a = 5
 
     contains
 
@@ -30,3 +32,15 @@ module test
     end function
 
 end module
+
+program main
+
+    use test
+
+    implicit none
+
+    integer :: foo
+
+    foo = add(4, 8)
+
+end program

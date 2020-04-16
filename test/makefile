@@ -1,11 +1,11 @@
 .PHONY: build clean
 
-OPT=-O3
+OPT=-O0
 
-FC:=gfortran-4.6
+FC:=gfortran-8
 WLD:=emcc
 WLDS:=/app/scripts/shim.sh
-FCFLAGS:=-S -flto -m32 -fplugin=/app/dragonegg-3.3.src/dragonegg.so $(OPT) -c
+FCFLAGS:=-S -flto -m32  -fverbose-asm -fplugin=/app/dragonegg/dragonegg.so $(OPT) -fplugin-arg-dragonegg-llvm-ir-optimize=0
 WLDFLAGS:=$(OPT) --cache /project/bin/.emscripten_cache -s EXPORTED_FUNCTIONS='["___test_MOD_add"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
 
 BLDPATH:=bin

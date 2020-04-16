@@ -1,13 +1,11 @@
-FROM ubuntu:18.04
+FROM ubuntu:19.10
 ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Berlin
 
-RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted universe" >> /etc/apt/sources.list && \
-    echo "deb http://security.ubuntu.com/ubuntu/ trusty-security main" >> /etc/apt/sources.list && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get -y install --no-install-recommends \
         build-essential python3 python3-distutils \
         wget git gnutls-bin bash make ca-certificates xz-utils \
-        gfortran-4.6 g++-4.6 gcc-4.6 gcc-4.6-plugin-dev llvm-3.3-dev && \
+        gfortran-8 g++-8 gcc-8 gcc-8-plugin-dev llvm-6.0-dev && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -32,10 +30,13 @@ WORKDIR /app
 #     ninja install
 
 
-RUN wget https://llvm.org/releases/3.3/dragonegg-3.3.src.tar.gz && \
-    tar xzf dragonegg-3.3.src.tar.gz && \
-    cd dragonegg-3.3.src && \
-    LLVM_CONFIG=llvm-config-3.3 GCC=gcc-4.6 CC=gcc-4.6 CXX=g++-4.6 make
+# RUN wget https://llvm.org/releases/3.3/dragonegg-3.3.src.tar.gz && \
+#     tar xzf dragonegg-3.3.src.tar.gz && \
+#     cd dragonegg-3.3.src && \
+#     LLVM_CONFIG=llvm-config-3.3 GCC=gcc-4.6 CC=gcc-4.6 CXX=g++-4.6 make
+RUN git clone https://github.com/ranjani141/dragonegg.git && \
+    cd dragonegg && \
+    LLVM_CONFIG=llvm-config-6.0 GCC=gcc-8 CC=gcc-8 CXX=g++-8 make
 
 RUN git clone https://github.com/emscripten-core/emsdk.git
 ARG EMS_VERSION="1.39.12"
