@@ -2,11 +2,11 @@
 
 OPT:=-O3
 
-FC:=f18
+FC:=flang
 WLD:=emcc
 WLDS:=/app/scripts/shim.sh
-FCFLAGS:=--target=wasm32 -nostdlib -emit-llvm $(OPT) -c -S -flto -m32 -Mfree -Mextend -module bin -I/app/pgi/linux86-64-llvm/19.10/include
-WLDFLAGS:=$(OPT) --cache /project/bin/.emscripten_cache -s EXPORTED_FUNCTIONS='["___test_MOD_add"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
+FCFLAGS:=--target=wasm32 -nostdlib -emit-llvm $(OPT) -c -S -flto -m32 -Mfree -Mextend -module bin -I/opt/AMD/aocc-compiler-2.1.0/include
+WLDFLAGS:=$(OPT) --cache /project/bin/.emscripten_cache -s EXPORTED_FUNCTIONS='["_test_add_"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' --llvm-opts "['$(OPT)']" --closure 1
 
 BLDPATH:=bin
 SRCPATH:=src
@@ -19,7 +19,7 @@ ASRC:=$(BLDPATH)/$(NAME).f90
 FLLPRE:=$(BLDPATH)/$(NAME).llpre
 FLLPOST:=$(BLDPATH)/$(NAME).ll
 
-build: $(BLDPATH) $(BIN)
+build: clean $(BLDPATH) $(BIN)
 	cp -f $(STAPATH)/* $(BLDPATH)
 
 $(ASRC): $(FSRCS)
@@ -38,4 +38,4 @@ $(BLDPATH):
 	mkdir -p $(BLDPATH)
 
 clean:
-	cd $(BLDPATH) && rm -f *.html *.js *.wasm *.ll *.llpre *.o *.f90
+	cd $(BLDPATH) && rm -f *.html *.js *.wasm *.ll *.llpre *.o *.f90 *.mod

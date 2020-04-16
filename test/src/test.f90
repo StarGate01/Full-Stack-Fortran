@@ -9,7 +9,7 @@ module test
     contains
 
     function add(a, b) result(res)
-        integer, value, intent(in)      :: a, b
+        integer, intent(in)      :: a, b
         integer                         :: res
 
         ! type(C_ptr) :: buf

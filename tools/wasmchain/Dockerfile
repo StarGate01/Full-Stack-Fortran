@@ -2,46 +2,23 @@ FROM ubuntu:18.04 AS build
 ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Berlin
 
 RUN apt-get update && \
-    apt-get -y install --no-install-recommends build-essential gnutls-bin cmake xz-utils make wget bash python3 ca-certificates ninja-build && \
+    apt-get -y install --no-install-recommends build-essential gnutls-bin cmake xz-utils make wget bash python3 python3-distutils ca-certificates \
+        git zlib1g gcc g++ libncurses-dev && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-ARG LLVM_REV="b43612401077912a577fd9700c7284b6e676f3fe"
-RUN wget https://github.com/llvm/llvm-project/archive/${LLVM_REV}.tar.gz -O llvm.tar.gz
-RUN tar -xzf llvm.tar.gz && \
-    mv llvm-project* llvm
-RUN cd llvm && \
-    mkdir build && \
-    cd build && \
-    cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF \
-        -DLLVM_ENABLE_PROJECTS='mlir;flang' -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=On ../llvm && \
-    ninja -j 4 && \
-    ninja install
+COPY vendor/aocc-compiler-2.1.0_1_amd64.deb aocc-compiler-2.1.0_1_amd64.deb
+RUN dpkg -i aocc-compiler-2.1.0_1_amd64.deb
 
-# COPY vendor/pgilinux-2019-1910-x86-64.tar.gz pgilinux-2019-1910-x86-64.tar.gz
-# RUN mkdir pgilinux && \
-#     tar xvzf pgilinux-2019-1910-x86-64.tar.gz -C pgilinux && \
-#     cd pgilinux && \
-#     PGI_SILENT=true PGI_ACCEPT_EULA=accept PGI_INSTALL_DIR=/app/pgi PGI_INSTALL_TYPE=single \
-#         PGI_INSTALL_NVIDIA=false PGI_INSTALL_JAVA=false PGI_INSTALL_MPI=false PGI_MPI_GPU_SUPPORT=false \
-#         ./install
-# ENV PGI=/app/pgi PATH="/app/pgi/linux86-64/19.10/bin:${PATH}" LM_LICENSE_FILE=/app/pgi/license.dat
-
-
-FROM ubuntu:18.04 AS tool
-ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Berlin
-
-COPY --from=build /usr/local /usr/local
-COPY --from=build /app/pgi /app/pgi
-
-RUN apt-get update && \
-    apt-get -y install --no-install-recommends build-essential cmake xz-utils python3 python3-distutils git make gnutls-bin bash ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
 RUN git clone https://github.com/emscripten-core/emsdk.git
 ARG EMS_VERSION="1.39.12"
 RUN cd emsdk && \
     ./emsdk install ${EMS_VERSION} && \
     ./emsdk activate ${EMS_VERSION}
-ENV PATH="/app/emsdk:/app/emsdk/node/12.9.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
+
+COPY scripts /app/scripts
+ENV PATH="/opt/AMD/aocc-compiler-2.1.0/bin:/app/emsdk:/app/emsdk/node/12.9.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}" \
+    LIBRARY_PATH="/opt/AMD/aocc-compiler-2.1.0/lib:/opt/AMD/aocc-compiler-2.1.0/lib32:/usr/lib/x86_64-linux-gnu:/usr/lib64:/usr/lib32:/usr/lib:${LIBRARY_PATH}" \
+    LD_LIBRARY_PATH="/opt/AMD/aocc-compiler-2.1.0/lib:/opt/AMD/aocc-compiler-2.1.0/lib32:/usr/lib/x86_64-linux-gnu:/usr/lib64:/usr/lib32:/usr/lib:${LD_LIBRARY_PATH}" \
+    C_INCLUDE_PATH="${C_INCLUDE_PATH}:/opt/AMD/aocc-compiler-2.1.0/include" \
+    CPLUS_INCLUDE_PATH="${CPLUS_INCLUDE_PATH}:/opt/AMD/aocc-compiler-2.1.0/include"
