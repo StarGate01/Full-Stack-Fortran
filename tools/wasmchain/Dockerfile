@@ -15,17 +15,16 @@ RUN cd llvm && \
     cd build && \
     cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF \
         -DLLVM_ENABLE_PROJECTS='mlir;flang' -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=On ../llvm && \
-    ninja -j 4 && \
+    ninja -j 6 && \
     ninja install
 
-# COPY vendor/pgilinux-2019-1910-x86-64.tar.gz pgilinux-2019-1910-x86-64.tar.gz
-# RUN mkdir pgilinux && \
-#     tar xvzf pgilinux-2019-1910-x86-64.tar.gz -C pgilinux && \
-#     cd pgilinux && \
-#     PGI_SILENT=true PGI_ACCEPT_EULA=accept PGI_INSTALL_DIR=/app/pgi PGI_INSTALL_TYPE=single \
-#         PGI_INSTALL_NVIDIA=false PGI_INSTALL_JAVA=false PGI_INSTALL_MPI=false PGI_MPI_GPU_SUPPORT=false \
-#         ./install
-# ENV PGI=/app/pgi PATH="/app/pgi/linux86-64/19.10/bin:${PATH}" LM_LICENSE_FILE=/app/pgi/license.dat
+COPY vendor/pgilinux-2019-1910-x86-64.tar.gz pgilinux-2019-1910-x86-64.tar.gz
+RUN mkdir pgilinux && \
+    tar xvzf pgilinux-2019-1910-x86-64.tar.gz -C pgilinux && \
+    cd pgilinux && \
+    PGI_SILENT=true PGI_ACCEPT_EULA=accept PGI_INSTALL_DIR=/app/pgi PGI_INSTALL_TYPE=single \
+        PGI_INSTALL_NVIDIA=false PGI_INSTALL_JAVA=false PGI_INSTALL_MPI=false PGI_MPI_GPU_SUPPORT=false \
+        ./install
 
 
 FROM ubuntu:18.04 AS tool
@@ -33,6 +32,7 @@ ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Berlin
 
 COPY --from=build /usr/local /usr/local
 COPY --from=build /app/pgi /app/pgi
+ENV PGI=/app/pgi LM_LICENSE_FILE=/app/pgi/license.dat
 
 RUN apt-get update && \
     apt-get -y install --no-install-recommends build-essential cmake xz-utils python3 python3-distutils git make gnutls-bin bash ca-certificates && \
@@ -44,4 +44,6 @@ ARG EMS_VERSION="1.39.12"
 RUN cd emsdk && \
     ./emsdk install ${EMS_VERSION} && \
     ./emsdk activate ${EMS_VERSION}
-ENV PATH="/app/emsdk:/app/emsdk/node/12.9.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
+
+COPY scripts /app/scripts
+ENV PATH="/app/pgi/linux86-64/19.10/bin:/app/emsdk:/app/emsdk/node/12.9.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
