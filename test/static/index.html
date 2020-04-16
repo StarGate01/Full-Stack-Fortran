@@ -5,7 +5,7 @@
         <title>Fortran WASM Test</title>
     </head>
     <body>
-        <script src="testlib.js"></script>
+        <script src="assembly.js"></script>
         <script>
             Module.onRuntimeInitialized = _ => {
                 const add = Module.cwrap('test_add_', 'number', ['number', 'number']);
