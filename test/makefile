@@ -6,10 +6,11 @@ CC:=emcc
 WLD:=emcc
 
 FCFLAGS:=--target=wasm32 -nostdlib $(OPT) -m32 -Mfreeform -Mextend -Ibin -Jbin -Mpreprocess -i8 -r8
-CCFLAGS:=--target=wasm32 $(OPT) -c -S -flto -m32 -s LINKABLE=1 -s EXPORT_ALL=1 \
-	-Isrc -Isrc/flang/include -Isrc/flang/runtime/include -Isrc/flang/tools/shared -Isrc/flang/tools/shared/utils -Isrc/flang/tools/shared/utils/common -Ibin/flang/utils/errmsg \
-EMSFLAGS:=$(OPT) -m32 --cache /project/bin/.emscripten_cache --llvm-opts "['$(OPT)']" --closure 1
+CCFLAGS:=--target=wasm32 $(OPT) -c -S -flto -m32 -s EXPORT_ALL=1 -Isrc
+EMSFLAGS:=$(OPT) -m32 --llvm-opts "['$(OPT)']"
 WLDFLAGS:=-s EXPORTED_FUNCTIONS='["_test_add_"]' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
+STDLIB:=libflang.a libflangmain.a libflangrti.a libompstub.a
+STDLIBP:=$(STDLIB:%=/app/lib/flang/build/lib/%)
 
 BLDPATH:=bin
 SRCPATH:=src
@@ -28,9 +29,7 @@ CSRCS:=$(CSRCSNAMES:%=$(SRCPATH)/%)
 FLLS:=$(FSRCS:$(SRCPATH)/%.f90=$(BLDPATH)/%.f90.ll)
 CLLS:=$(CSRCS:$(SRCPATH)/%.c=$(BLDPATH)/%.c.ll)
 
-include flangmake/makefile
-
-build: clean flang $(BIN)
+build: clean $(BIN)
 	cp -f $(STAPATH)/* $(BLDPATH)
 
 $(BLDPATH)/%.f90.ll: $(SRCPATH)/%.f90
@@ -43,7 +42,7 @@ $(BLDPATH)/%.c.ll: $(SRCPATH)/%.c
 
 $(OBJ): $(CLLS) $(FLLS)
 	$(shell mkdir -p $(dir $@))
-	$(WLD) $(EMSFLAGS) -o $@ $^
+	$(WLD) $(EMSFLAGS) -o $@ $^ $(STDLIBP)
 
 $(BIN): $(OBJ)
 	$(shell mkdir -p $(dir $@))
