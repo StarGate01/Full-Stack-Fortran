@@ -2,5 +2,5 @@ version: '3'
 
 services:
   wasmchain:
-    image: wasmchain:dragonegg
+    image: wasmchain:dragonegg-old
     build: ./wasmchain
