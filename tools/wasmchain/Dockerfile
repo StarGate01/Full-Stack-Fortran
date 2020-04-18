@@ -82,32 +82,43 @@ ENV PATH="/app/emsdk:/app/emsdk/node/12.9.1_64bit/bin:/app/emsdk/upstream/emscri
 #     tar -xzf emscripten.tar.gz && \
 #     mv emscripten-* emscripten
 
+COPY scripts /app/scripts
+
 RUN git clone https://github.com/Reference-LAPACK/lapack.git
 COPY vendor/LAPACK/make.inc lapack/make.inc
 COPY scripts /app/scripts
 RUN cd lapack && \
     make -j$(nproc) lapacklib blaslib
 
-ARG GCC_REV="66cc0b3cf5bcd0366200064192b544c9274144b3"
-RUN wget https://github.com/gcc-mirror/gcc/archive/${GCC_REV}.tar.gz -O gcc.tar.gz
-RUN tar -xzf gcc.tar.gz && \
-    mv gcc-* gcc
+# ARG GCC_REV="66cc0b3cf5bcd0366200064192b544c9274144b3"
+# RUN wget https://github.com/gcc-mirror/gcc/archive/${GCC_REV}.tar.gz -O gcc.tar.gz
+# RUN tar -xzf gcc.tar.gz && \
+#     mv gcc-* gcc
 
 # RUN apt-get update && \
 #     apt-get -y install --no-install-recommends \
 #         gfortran && \
 #     rm -rf /var/lib/apt/lists/*
 
-RUN cd gcc && \
-    ./contrib/download_prerequisites
-RUN mkdir gcc-build gcc-bin && \
-    cd gcc-build && \
-        FC=/app/scripts/emfc.sh FFLAGS="-O3 -Wall" \
-        CFLAGS="--target=wasm32 -O3 -flto -emit-llvm -m32 -s EXPORT_ALL=1 -Wall" \
-        emconfigure /app/gcc/configure --prefix=/app/gcc-bin --enable-languages=fortran --disable-bootstrap --disable-threads 
-         #&& \
-    # emmake make -j 12 && \
-    # emmake make install
+# COPY gcc/contrib/download_prerequisites gcc/contrib/download_prerequisites
+# RUN cd gcc && \
+#     ./contrib/download_prerequisites
+# # COPY gcc gcc
+# RUN mkdir -p gcc-build gcc-bin
+# RUN cd gcc-build && \
+#         FC=gfortran-4.6 GFORTRAN=gfortran-4.6 \
+#         CC=gcc-4.6 \
+#         /app/gcc/libgfortran/configure --cache-file=/app/cache/config.cache --prefix=/app/gcc-bin --enable-languages=fortran --disable-bootstrap --disable-threads
+# RUN cd gcc-build && \
+#     make  && \
+#     make install
+# RUN cd gcc-build && \
+#         FC=/app/scripts/emfc.sh FFLAGS="-O3 -Wall" GFORTRAN=/app/scripts/emfc.sh \
+#         CFLAGS="--target=wasm32-unknown-emscripten -O3 -flto -emit-llvm -m32 -s EXPORT_ALL=1 -Wall -DHAVE_PSIGNAL=1 -DHAVE_INSQUE=1" \
+#         emconfigure /app/gcc/libgfortran/configure --cache-file=/app/cache/config.cache --prefix=/app/gcc-bin --enable-languages=fortran --disable-bootstrap --disable-threads
+# RUN cd gcc-build && \
+#     emmake make  && \
+#     emmake make install
 
 
 # # RUN cd emscripten-${EMS_VERSION} && \

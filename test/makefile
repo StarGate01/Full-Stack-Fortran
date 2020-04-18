@@ -17,15 +17,16 @@ SRCPATH:=src
 STAPATH:=static
 
 # Build options
-OPT:=-O3
-DEBUG:=
+OPT:=-O0
+DEBUG:=-g
 
 # Compilers and flags
 FC:=/app/scripts/emfc.sh
 CC:=emcc
 WLD:=emcc
 FCFLAGS:=$(DEBUG) $(OPT) -Wall -I$(BLDPATH)
-CCFLAGS:=$(DEBUG) --target=wasm32 $(OPT) -c -flto  -emit-llvm -m32 -s EXPORT_ALL=1 -Isrc -Isrc/gfortran/libgfortran -Isrc/gfortran/libgcc -Isrc/gfortran/gcc -Isrc/gfortran/fortran -Wall
+CCFLAGS:=$(DEBUG) --target=wasm32-unknown-emscripten $(OPT) -c -flto -emit-llvm -m32 -s EXPORT_ALL=1 -Isrc -Wall \
+	-Isrc/gcc -Isrc/gcc/libgfortran -Isrc/gcc/libgcc -Isrc/gcc/gcc -Isrc/gcc/libgfortran/config
 EMSFLAGS:=$(OPT) $(DEBUG) -m32 --cache /project/bin/.emscripten_cache -Wall
 WLDFLAGS:=-s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' -s MODULARIZE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0
 
@@ -43,8 +44,13 @@ FSRCS_IOLIB:=$(SRCPATH)/iolib/iolib_types.f90 $(SRCPATH)/iolib/iolib.f90
 CSRCS_IOLIB:=$(SRCPATH)/iolib/iolib.c
 MOD_IOLIB:=$(CSRCS_IOLIB:$(SRCPATH)/%=$(BLDPATH)/%.bc)
 # gfortran shim
-FSRCS_GFORTRAN:=
-CSRCS_GFORTRAN:=$(filter-out $(call rwildcard,$(SRCPATH)/gfortran,*_inc.c),$(call rwildcard,$(SRCPATH)/gfortran,*.c))
+FSRCS_GFORTRAN:= 
+CSRCS_GFORTRAN:=$(SRCPATH)/gcc/libgfortran/intrinsics/string_intrinsics.c $(SRCPATH)/gcc/libgfortran/io/transfer.c $(SRCPATH)/gcc/libgfortran/runtime/compile_options.c \
+	$(SRCPATH)/gcc/libgfortran/runtime/main.c $(SRCPATH)/gcc/libgfortran/runtime/environ.c $(SRCPATH)/gcc/libgfortran/runtime/stop.c $(SRCPATH)/gcc/libgfortran/io/unit.c \
+	$(SRCPATH)/gcc/libgfortran/io/unix.c $(SRCPATH)/gcc/libgfortran/io/fbuf.c $(SRCPATH)/gcc/libgfortran/runtime/string.c $(SRCPATH)/gcc/libgfortran/io/list_read.c \
+	$(SRCPATH)/gcc/libgfortran/io/read.c $(SRCPATH)/gcc/libgfortran/io/format.c $(SRCPATH)/gcc/libgfortran/io/lock.c $(SRCPATH)/gcc/libgfortran/runtime/error.c \
+	$(SRCPATH)/gcc/libgfortran/runtime/memory.c $(SRCPATH)/gcc/libgfortran/io/write.c $(SRCPATH)/gcc/libgfortran/io/open.c $(SRCPATH)/gcc/libgfortran/intrinsics/random.c \
+	$(SRCPATH)/gcc/libgfortran/runtime/backtrace.c $(SRCPATH)/gcc/libgfortran/io/size_from_kind.c  $(SRCPATH)/gcc/libgfortran/runtime/fpu.c  $(SRCPATH)/gcc/libgfortran/intrinsics/c99_functions.c
 MOD_GFORTRAN:=$(CSRCS_GFORTRAN:$(SRCPATH)/%=$(BLDPATH)/%.bc)
 # User project files
 FSRCS_USER:=$(SRCPATH)/test.f90
@@ -76,7 +82,7 @@ info:
 
 clean:
 	$(shell mkdir -p $(BLDPATH))
-	cd $(BLDPATH) && rm -rf iolib *.bc *.ll *.llpre *.mod *wasm *.html *.js
+	cd $(BLDPATH) && rm -rf iolib gfortran *.bc *.ll *.llpre *.mod *wasm *.html *.js
 
 # Fortran 95 and above
 $(BLDPATH)/%.f90.bc: $(SRCPATH)/%.f90
@@ -92,6 +98,7 @@ $(BLDPATH)/%.f.bc: $(SRCPATH)/%.f
 $(BLDPATH)/%.c.bc: $(SRCPATH)/%.c
 	$(shell mkdir -p $(dir $@))
 	$(CC) $(CCFLAGS) -o $@ $< 
+	$(CC) $(CCFLAGS) -emit-llvm -S -flto -m32 -o $@.ll $< 
 
 # Javascript finish
 $(OBJ): $(CBCS) $(FBCS) $(LIBS)
