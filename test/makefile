@@ -17,17 +17,16 @@ SRCPATH:=src
 STAPATH:=static
 
 # Build options
-OPT:=3
+OPT:=-O3
 DEBUG:=
 
 # Compilers and flags
-FC:=/app/scripts/gfortran.sh
+FC:=/app/scripts/emfc.sh
 CC:=emcc
 WLD:=emcc
-FCFLAGS:=$(DEBUG) -emit-llvm -S -flto -m32 -fverbose-asm -nostdlib -fplugin=/app/dragonegg-3.3.src/dragonegg.so -O$(OPT) \
-	-fplugin-arg-dragonegg-llvm-ir-optimize=$(OPT) -Wall -I$(BLDPATH)
-CCFLAGS:=$(DEBUG) --target=wasm32 -O$(OPT) -c -flto  -emit-llvm -m32 -s EXPORT_ALL=1 -Isrc -Isrc/gfortran/libgfortran -Wall
-EMSFLAGS:=-O$(OPT) $(DEBUG) -m32 --cache /project/bin/.emscripten_cache -Wall
+FCFLAGS:=$(DEBUG) $(OPT) -Wall -I$(BLDPATH)
+CCFLAGS:=$(DEBUG) --target=wasm32 $(OPT) -c -flto  -emit-llvm -m32 -s EXPORT_ALL=1 -Isrc -Isrc/gfortran/libgfortran -Isrc/gfortran/libgcc -Isrc/gfortran/gcc -Isrc/gfortran/fortran -Wall
+EMSFLAGS:=$(OPT) $(DEBUG) -m32 --cache /project/bin/.emscripten_cache -Wall
 WLDFLAGS:=-s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' -s MODULARIZE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0
 
 # Project config
@@ -45,7 +44,7 @@ CSRCS_IOLIB:=$(SRCPATH)/iolib/iolib.c
 MOD_IOLIB:=$(CSRCS_IOLIB:$(SRCPATH)/%=$(BLDPATH)/%.bc)
 # gfortran shim
 FSRCS_GFORTRAN:=
-CSRCS_GFORTRAN:=$(call rwildcard,$(SRCPATH)/gfortran,*.c)
+CSRCS_GFORTRAN:=$(filter-out $(call rwildcard,$(SRCPATH)/gfortran,*_inc.c),$(call rwildcard,$(SRCPATH)/gfortran,*.c))
 MOD_GFORTRAN:=$(CSRCS_GFORTRAN:$(SRCPATH)/%=$(BLDPATH)/%.bc)
 # User project files
 FSRCS_USER:=$(SRCPATH)/test.f90

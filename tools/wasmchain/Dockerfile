@@ -92,14 +92,22 @@ ARG GCC_REV="66cc0b3cf5bcd0366200064192b544c9274144b3"
 RUN wget https://github.com/gcc-mirror/gcc/archive/${GCC_REV}.tar.gz -O gcc.tar.gz
 RUN tar -xzf gcc.tar.gz && \
     mv gcc-* gcc
-# RUN cd gcc && \
-#     ./contrib/download_prerequisites
-# RUN mkdir gcc-build gcc-bin && \
-#     cd gcc-build && \
-#         FC=gfortran-4.6 CC=gcc-4.6 \
-#          /app/gcc/configure --prefix=/app/gcc-bin --enable-languages=fortran --disable-bootstrap --disable-threads && \
-#     emmake make -j 12 && \
-#     emmake make install
+
+# RUN apt-get update && \
+#     apt-get -y install --no-install-recommends \
+#         gfortran && \
+#     rm -rf /var/lib/apt/lists/*
+
+RUN cd gcc && \
+    ./contrib/download_prerequisites
+RUN mkdir gcc-build gcc-bin && \
+    cd gcc-build && \
+        FC=/app/scripts/emfc.sh FFLAGS="-O3 -Wall" \
+        CFLAGS="--target=wasm32 -O3 -flto -emit-llvm -m32 -s EXPORT_ALL=1 -Wall" \
+        emconfigure /app/gcc/configure --prefix=/app/gcc-bin --enable-languages=fortran --disable-bootstrap --disable-threads 
+         #&& \
+    # emmake make -j 12 && \
+    # emmake make install
 
 
 # # RUN cd emscripten-${EMS_VERSION} && \

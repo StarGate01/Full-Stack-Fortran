@@ -19,10 +19,10 @@ CFLAGS = --target=wasm32 -O3 -c -flto -emit-llvm -m32 -s EXPORT_ALL=1 -Isrc -Wal
 #  and handle these quantities appropriately. As a consequence, one
 #  should not compile LAPACK with flags such as -ffpe-trap=overflow.
 #
-FC = /app/scripts/gfortran.sh
-FFLAGS = -S -flto -m32 -fverbose-asm -nostdlib -fplugin=/app/dragonegg-3.3.src/dragonegg.so -O3 -fplugin-arg-dragonegg-llvm-ir-optimize=3 -Wall -emit-llvm -flto
+FC = /app/scripts/emfc.sh
+FFLAGS = -O3 -Wall
 FFLAGS_DRV = $(FFLAGS)
-FFLAGS_NOOPT = -S -flto -m32 -fverbose-asm -nostdlib -fplugin=/app/dragonegg-3.3.src/dragonegg.so -O0 -fplugin-arg-dragonegg-llvm-ir-optimize=0 -Wall -emit-llvm -flto
+FFLAGS_NOOPT = -O0 -Wall
 
 #  Define LDFLAGS to the desired linker options for your machine.
 #
