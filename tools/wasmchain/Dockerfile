@@ -86,7 +86,20 @@ RUN git clone https://github.com/Reference-LAPACK/lapack.git
 COPY vendor/LAPACK/make.inc lapack/make.inc
 COPY scripts /app/scripts
 RUN cd lapack && \
-    make -j12 lapacklib blaslib
+    make -j$(nproc) lapacklib blaslib
+
+ARG GCC_REV="66cc0b3cf5bcd0366200064192b544c9274144b3"
+RUN wget https://github.com/gcc-mirror/gcc/archive/${GCC_REV}.tar.gz -O gcc.tar.gz
+RUN tar -xzf gcc.tar.gz && \
+    mv gcc-* gcc
+# RUN cd gcc && \
+#     ./contrib/download_prerequisites
+# RUN mkdir gcc-build gcc-bin && \
+#     cd gcc-build && \
+#         FC=gfortran-4.6 CC=gcc-4.6 \
+#          /app/gcc/configure --prefix=/app/gcc-bin --enable-languages=fortran --disable-bootstrap --disable-threads && \
+#     emmake make -j 12 && \
+#     emmake make install
 
 
 # # RUN cd emscripten-${EMS_VERSION} && \

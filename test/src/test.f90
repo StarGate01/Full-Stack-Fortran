@@ -4,6 +4,8 @@ module test
 
     implicit none
 
+    external :: ZGEEV
+
     contains
 
     function add(a, b) result(res)
