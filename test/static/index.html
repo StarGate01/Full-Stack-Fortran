@@ -5,11 +5,13 @@
         <title>Fortran WASM Test</title>
     </head>
     <body>
-        <script src="testlib.js"></script>
+        <script src="assembly.js"></script>
         <script>
-            Module.onRuntimeInitialized = _ => {
-                const add = Module.cwrap('test_add_', 'number', ['number', 'number']);
-                console.log(add(5, 7));
+            let module = Module();
+            module.onRuntimeInitialized = _ => {
+                const add = module.cwrap('__test_MOD_add', 'number', ['number', 'number']);
+                console.log("call from javascript: " + add(5, 7));
+                module.ccall('__test_MOD_eigen', null, []);
             };
         </script>
     </body>

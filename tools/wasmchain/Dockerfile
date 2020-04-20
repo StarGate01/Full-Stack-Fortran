@@ -1,49 +1,63 @@
-FROM ubuntu:18.04 AS build
+FROM ubuntu:18.04 as build
 ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Berlin
 
-RUN apt-get update && \
-    apt-get -y install --no-install-recommends build-essential gnutls-bin cmake xz-utils make wget bash python3 ca-certificates ninja-build && \
+RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted universe" >> /etc/apt/sources.list && \
+    echo "deb http://security.ubuntu.com/ubuntu/ trusty-security main" >> /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get -y install --no-install-recommends \
+        build-essential python wget git gnutls-bin bash make ca-certificates xz-utils \
+        gfortran-4.6 g++-4.6 gcc-4.6 gcc-4.6-plugin-dev llvm-3.3-dev && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-ARG LLVM_REV="b43612401077912a577fd9700c7284b6e676f3fe"
-RUN wget https://github.com/llvm/llvm-project/archive/${LLVM_REV}.tar.gz -O llvm.tar.gz
-RUN tar -xzf llvm.tar.gz && \
-    mv llvm-project* llvm
-RUN cd llvm && \
-    mkdir build && \
-    cd build && \
-    cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF \
-        -DLLVM_ENABLE_PROJECTS='mlir;flang' -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=On ../llvm && \
-    ninja -j 6 && \
-    ninja install
 
-COPY vendor/pgilinux-2019-1910-x86-64.tar.gz pgilinux-2019-1910-x86-64.tar.gz
-RUN mkdir pgilinux && \
-    tar xvzf pgilinux-2019-1910-x86-64.tar.gz -C pgilinux && \
-    cd pgilinux && \
-    PGI_SILENT=true PGI_ACCEPT_EULA=accept PGI_INSTALL_DIR=/app/pgi PGI_INSTALL_TYPE=single \
-        PGI_INSTALL_NVIDIA=false PGI_INSTALL_JAVA=false PGI_INSTALL_MPI=false PGI_MPI_GPU_SUPPORT=false \
-        ./install
+# dragonegg
+RUN git clone --single-branch --branch="release_33" --depth=1 https://github.com/llvm-mirror/dragonegg.git && \
+    cd dragonegg && \
+    LLVM_CONFIG=llvm-config-3.3 GCC=gcc-4.6 CC=gcc-4.6 CXX=g++-4.6 make -j$(nproc) && \
+    mkdir -p /app/bin && \
+    mv dragonegg.so /app/bin/
+
+# emscripten
+RUN git clone --depth=1 https://github.com/emscripten-core/emsdk.git && \
+    cd emsdk && \
+    ./emsdk install "1.39.12" && \
+    ./emsdk activate "1.39.12"
+COPY scripts /app/scripts
+ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/12.9.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
+
+# libgfortran
+RUN git clone --single-branch --branch="releases/gcc-4.6" --depth=1 https://github.com/gcc-mirror/gcc.git
+COPY vendor/gfortran gcc-build
+RUN cd gcc-build && \
+    ./patch.sh && \
+    make -j$(nproc) build
+
+# lapack
+RUN git clone --depth=1 https://github.com/Reference-LAPACK/lapack.git
+COPY vendor/LAPACK/make.inc lapack/make.inc
+RUN cd lapack/SRC && \
+    emmake make -j$(nproc) single double
 
 
-FROM ubuntu:18.04 AS tool
+FROM ubuntu:18.04 as tool
 ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Berlin
 
-COPY --from=build /usr/local /usr/local
-COPY --from=build /app/pgi /app/pgi
-ENV PGI=/app/pgi LM_LICENSE_FILE=/app/pgi/license.dat
-
-RUN apt-get update && \
-    apt-get -y install --no-install-recommends build-essential cmake xz-utils python3 python3-distutils git make gnutls-bin bash ca-certificates && \
+RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted universe" >> /etc/apt/sources.list && \
+    echo "deb http://security.ubuntu.com/ubuntu/ trusty-security main" >> /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get -y install --no-install-recommends python bash make cmake gfortran-4.6 llvm-3.3 && \
     rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
-RUN git clone https://github.com/emscripten-core/emsdk.git
-ARG EMS_VERSION="1.39.12"
-RUN cd emsdk && \
-    ./emsdk install ${EMS_VERSION} && \
-    ./emsdk activate ${EMS_VERSION}
+COPY --from=build /app/bin /app/bin/
+COPY --from=build /app/emsdk /app/emsdk
+COPY --from=build /root/.emscripten /root/.emscripten
+COPY --from=build /app/gcc-build/bin/libgfortran.a /app/lapack/*.a /app/lib/
 
 COPY scripts /app/scripts
-ENV PATH="/app/pgi/linux86-64/19.10/bin:/app/emsdk:/app/emsdk/node/12.9.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
+ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/12.9.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
+ENV LIBRARY_PATH="/app/lib:${LIBRARY_PATH}"
+
+WORKDIR /app
+
+
