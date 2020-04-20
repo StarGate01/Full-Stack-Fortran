@@ -476,7 +476,7 @@ subroutine get_unit ( iunit )
     
       return
     end
-    function r8_normal_01 ( seed )
+    function r8_normal_01_func ( seed )
     
     !*****************************************************************************80
     !
@@ -526,7 +526,7 @@ subroutine get_unit ( iunit )
       real ( kind = 8 ), parameter :: pi = 3.141592653589793D+00
       real ( kind = 8 ) r1
       real ( kind = 8 ) r2
-      real ( kind = 8 ) r8_normal_01
+      real ( kind = 8 ) r8_normal_01_func
       real ( kind = 8 ) r8_uniform_01
       integer ( kind = 4 ) seed
       integer ( kind = 4 ), save :: seed2 = 0
@@ -539,7 +539,7 @@ subroutine get_unit ( iunit )
     !
       if ( mod ( used, 2 ) == 0 ) then
     
-        r1 = r8_uniform_01 ( seed )
+        r1 = r8_uniform_01_func ( seed )
     
         if ( r1 == 0.0D+00 ) then
           write ( *, '(a)' ) ' '
@@ -549,7 +549,7 @@ subroutine get_unit ( iunit )
         end if
     
         seed2 = seed
-        r2 = r8_uniform_01 ( seed2 )
+        r2 = r8_uniform_01_func ( seed2 )
     
         x = sqrt ( -2.0D+00 * log ( r1 ) ) * cos ( 2.0D+00 * pi * r2 )
         y = sqrt ( -2.0D+00 * log ( r1 ) ) * sin ( 2.0D+00 * pi * r2 )
@@ -565,7 +565,7 @@ subroutine get_unit ( iunit )
     
       used = used + 1
     
-      r8_normal_01 = x
+      r8_normal_01_func = x
     
       return
     end
@@ -627,7 +627,7 @@ subroutine get_unit ( iunit )
     
       return
     end
-    function r8_uniform_01 ( seed )
+    function r8_uniform_01_func ( seed )
     
     !*****************************************************************************80
     !
@@ -699,7 +699,7 @@ subroutine get_unit ( iunit )
       implicit none
     
       integer ( kind = 4 ) k
-      real ( kind = 8 ) r8_uniform_01
+      real ( kind = 8 ) r8_uniform_01_func
       integer ( kind = 4 ) seed
     
       k = seed / 127773
@@ -713,7 +713,7 @@ subroutine get_unit ( iunit )
     !  Although SEED can be represented exactly as a 32 bit integer,
     !  it generally cannot be represented exactly as a 32 bit real number!
     !
-      r8_uniform_01 = real ( seed, kind = 8 ) * 4.656612875D-10
+      r8_uniform_01_func = real ( seed, kind = 8 ) * 4.656612875D-10
     
       return
     end
@@ -1008,7 +1008,7 @@ subroutine get_unit ( iunit )
         x(1:j-1) = 0.0D+00
     
         do i = j, n
-          x(i) = r8_normal_01 ( seed )
+          x(i) = r8_normal_01_func ( seed )
         end do
     !
     !  Compute the vector V that defines a Householder transformation matrix
@@ -1722,7 +1722,7 @@ subroutine get_unit ( iunit )
     !
       else if ( x_hi_index - x_lo_index + 1 == 1 ) then
     
-        r(1) = r8_uniform_01 ( seed )
+        r(1) = r8_uniform_01_func ( seed )
     
         if ( r(1) == 0.0D+00 ) then
           write ( *, '(a)' ) ' '
@@ -1731,7 +1731,7 @@ subroutine get_unit ( iunit )
           stop
         end if
     
-        r(2) = r8_uniform_01 ( seed )
+        r(2) = r8_uniform_01_func ( seed )
     
         x(x_hi_index) = &
                  sqrt ( -2.0D+00 * log ( r(1) ) ) * cos ( 2.0D+00 * pi * r(2) )
@@ -2193,55 +2193,55 @@ subroutine get_unit ( iunit )
     !
     !    None
     !
-    !   implicit none
+      implicit none
     
-    !   character ( len = 8 ) ampm
-    !   integer ( kind = 4 ) d
-    !   integer ( kind = 4 ) h
-    !   integer ( kind = 4 ) m
-    !   integer ( kind = 4 ) mm
-    !   character ( len = 9 ), parameter, dimension(12) :: month = (/ &
-    !     'January  ', 'February ', 'March    ', 'April    ', &
-    !     'May      ', 'June     ', 'July     ', 'August   ', &
-    !     'September', 'October  ', 'November ', 'December ' /)
-    !   integer ( kind = 4 ) n
-    !   integer ( kind = 4 ) s
-    !   integer ( kind = 4 ) values(8)
-    !   integer ( kind = 4 ) y
+      character ( len = 8 ) ampm
+      integer ( kind = 4 ) d
+      integer ( kind = 4 ) h
+      integer ( kind = 4 ) m
+      integer ( kind = 4 ) mm
+      character ( len = 9 ), parameter, dimension(12) :: month = (/ &
+        'January  ', 'February ', 'March    ', 'April    ', &
+        'May      ', 'June     ', 'July     ', 'August   ', &
+        'September', 'October  ', 'November ', 'December ' /)
+      integer ( kind = 4 ) n
+      integer ( kind = 4 ) s
+      integer ( kind = 4 ) values(8)
+      integer ( kind = 4 ) y
     
-    !   call date_and_time ( values = values )
+      call date_and_time ( values = values )
     
-    !   y = values(1)
-    !   m = values(2)
-    !   d = values(3)
-    !   h = values(5)
-    !   n = values(6)
-    !   s = values(7)
-    !   mm = values(8)
+      y = values(1)
+      m = values(2)
+      d = values(3)
+      h = values(5)
+      n = values(6)
+      s = values(7)
+      mm = values(8)
     
-    !   if ( h < 12 ) then
-    !     ampm = 'AM'
-    !   else if ( h == 12 ) then
-    !     if ( n == 0 .and. s == 0 ) then
-    !       ampm = 'Noon'
-    !     else
-    !       ampm = 'PM'
-    !     end if
-    !   else
-    !     h = h - 12
-    !     if ( h < 12 ) then
-    !       ampm = 'PM'
-    !     else if ( h == 12 ) then
-    !       if ( n == 0 .and. s == 0 ) then
-    !         ampm = 'Midnight'
-    !       else
-    !         ampm = 'AM'
-    !       end if
-    !     end if
-    !   end if
+      if ( h < 12 ) then
+        ampm = 'AM'
+      else if ( h == 12 ) then
+        if ( n == 0 .and. s == 0 ) then
+          ampm = 'Noon'
+        else
+          ampm = 'PM'
+        end if
+      else
+        h = h - 12
+        if ( h < 12 ) then
+          ampm = 'PM'
+        else if ( h == 12 ) then
+          if ( n == 0 .and. s == 0 ) then
+            ampm = 'Midnight'
+          else
+            ampm = 'AM'
+          end if
+        end if
+      end if
     
-    !   write ( *, '(i2.2,1x,a,1x,i4,2x,i2,a1,i2.2,a1,i2.2,a1,i3.3,1x,a)' ) &
-    !     d, trim ( month(m) ), y, h, ':', n, ':', s, '.', mm, trim ( ampm )
+      write ( *, '(i2.2,1x,a,1x,i4,2x,i2,a1,i2.2,a1,i2.2,a1,i3.3,1x,a)' ) &
+        d, trim ( month(m) ), y, h, ':', n, ':', s, '.', mm, trim ( ampm )
     
       return
     end

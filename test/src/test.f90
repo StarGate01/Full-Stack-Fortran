@@ -1,7 +1,6 @@
 module test
 
     use iolib
-    use lapack_prb
     use test_eigen
     use, intrinsic :: iso_c_binding
 
@@ -49,7 +48,7 @@ module test
         ! call iolib_printf("a double: %f"//char(10), 123.456)
         ! call iolib_printf("a 64bit int: %lld"//char(10), 21474836471234567_c_int64_t)
         call test_eigen_main()
-        call lapack_prb_main()
+        ! call lapack_prb_main()
 
         res = a * b + int(sin(foo) * 12.5)
     end function
