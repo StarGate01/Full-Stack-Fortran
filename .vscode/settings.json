@@ -1,0 +1,8 @@
+{
+    "fortran.includePaths": [
+        "/usr/local/include",
+        "/usr/local",
+        "/home/christoph/github/Full-Stack-Fortran/test/bin",
+        "/home/christoph/github/Full-Stack-Fortran/test/bin/iolib"
+    ]
+}
