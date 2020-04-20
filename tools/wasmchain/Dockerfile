@@ -27,14 +27,14 @@ COPY scripts /app/scripts
 ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/12.9.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
 
 # libgfortran
+RUN git clone --single-branch --branch="releases/gcc-4.6" --depth=1 https://github.com/gcc-mirror/gcc.git
 COPY vendor/gfortran gcc-build
-RUN git clone --single-branch --branch="releases/gcc-4.6" --depth=1 https://github.com/gcc-mirror/gcc.git && \
-    cd gcc-build && \
+RUN cd gcc-build && \
     ./patch.sh && \
     make -j$(nproc) build
 
 # lapack
-RUN git clone --single-branch --branch="29fe9e46a7c71c40246521359339de2f72341237" --depth=1 https://github.com/Reference-LAPACK/lapack.git
+RUN git clone --depth=1 https://github.com/Reference-LAPACK/lapack.git
 COPY vendor/LAPACK/make.inc lapack/make.inc
 RUN cd lapack/SRC && \
     emmake make -j$(nproc) single double
@@ -50,7 +50,8 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted universe"
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/bin /app/bin/
-COPY --from=build /app/emsdk /app/emsk
+COPY --from=build /app/emsdk /app/emsdk
+COPY --from=build /root/.emscripten /root/.emscripten
 COPY --from=build /app/gcc-build/bin/libgfortran.a /app/lapack/*.a /app/lib/
 
 COPY scripts /app/scripts

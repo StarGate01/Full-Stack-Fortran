@@ -33,7 +33,7 @@ WLDFLAGS:=-s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' -s MODULARIZE=1
 NAME:=assembly
 EXPORTS:=test_MOD_add test_MOD_eigen
 # EXPORTS:=test_MOD_add 
-LIBS:=/app/lapack/liblapack.a
+LIBS:=/app/lib/libgfortran.a /app/lib/liblapack.a
 # /app/lapack/librefblas.a
 # LIBS:=
 EXPORTSD:=$(EXPORTS:%="___%")
