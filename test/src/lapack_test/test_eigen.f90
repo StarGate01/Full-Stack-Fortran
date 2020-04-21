@@ -525,7 +525,6 @@ subroutine get_unit ( iunit )
       real ( kind = 8 ) r1
       real ( kind = 8 ) r2
       real ( kind = 8 ) r8_normal_01_func
-      real ( kind = 8 ) r8_uniform_01
       integer ( kind = 4 ) seed
       integer ( kind = 4 ), save :: seed2 = 0
       integer ( kind = 4 ), save :: used = 0
@@ -968,7 +967,6 @@ subroutine get_unit ( iunit )
       real ( kind = 8 ) a(n,n)
       integer ( kind = 4 ) i
       integer ( kind = 4 ) j
-      real ( kind = 8 ) r8_normal_01
       integer ( kind = 4 ) seed
       real ( kind = 8 ) v(n)
       real ( kind = 8 ) x(n)
@@ -1675,7 +1673,6 @@ subroutine get_unit ( iunit )
       integer ( kind = 4 ), save :: made = 0
       real ( kind = 8 ), parameter :: pi = 3.141592653589793D+00
       real ( kind = 8 ) r(n+1)
-      real ( kind = 8 ) r8_uniform_01
       integer ( kind = 4 ), save :: saved = 0
       integer ( kind = 4 ) seed
       real ( kind = 8 ) x(n)

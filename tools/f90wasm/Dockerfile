@@ -48,7 +48,7 @@ ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Berlin
 RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted universe" >> /etc/apt/sources.list && \
     echo "deb http://security.ubuntu.com/ubuntu/ trusty-security main" >> /etc/apt/sources.list && \
     apt-get update && \
-    apt-get -y install --no-install-recommends python bash make cmake gfortran-4.6 llvm-3.3 && \
+    apt-get -y install --no-install-recommends python bash make cmake gfortran-4.6 llvm-3.3 ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/bin /app/bin/

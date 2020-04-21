@@ -3,7 +3,7 @@
 SRCPATH:=/app/gcc/libgfortran
 BLDPATH:=/app/gcc-build/bin
 
-FC:=/app/scripts/emfc.sh
+FC:=emfc.sh
 CC:=emcc
 AR:=emar
 RANLIB:=emranlib

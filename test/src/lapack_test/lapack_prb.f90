@@ -295,7 +295,6 @@ end subroutine
       integer ( kind = 4 ) ipiv(n)
       integer ( kind = 4 ) iwork(n)
       real ( kind = 8 ) rcond
-      real ( kind = 8 ) r8mat_norm_li
       real ( kind = 8 ) work(lwork)
     
       write ( *, '(a)' ) ' '
@@ -529,7 +528,6 @@ end subroutine
       integer ( kind = 4 ) info
       integer ( kind = 4 ) j
       integer ( kind = 4 ) lda
-      real ( kind = 8 ) q(m,k)
       real ( kind = 8 ) r(k,n)
       integer ( kind = 4 ) seed
       real ( kind = 8 ) tau(k)
