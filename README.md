@@ -4,7 +4,7 @@ A toolchain to compile Fortran to Webassembly, and a few projects using it.
 
 Blog post: https://chrz.de/?p=324
 
-Docker image: https://hub.docker.com/repository/docker/stargate01/f90wasm
+Docker image: https://hub.docker.com/r/stargate01/f90wasm
 
 ## Thanks to
 
