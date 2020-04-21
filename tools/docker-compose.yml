@@ -1,6 +1,6 @@
 version: '3'
 
 services:
-  wasmchain:
-    image: wasmchain:dragonegg-old
-    build: ./wasmchain
+    f90wasm:
+        image: stargate01/f90wasm
+        build: ./f90wasm
