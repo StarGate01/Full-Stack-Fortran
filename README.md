@@ -13,3 +13,7 @@ Docker image: https://hub.docker.com/r/stargate01/f90wasm
  - https://llvm.org/
  - https://emscripten.org/
  - https://github.com/smikes/femscripten
+
+ ## TLDR
+
+ ![Toolchain Flowchart](toolchain.png)
