@@ -9,7 +9,6 @@ define uniq =
   $(foreach _,$1,$(if $(filter $_,${seen}),,$(eval seen += $_)))
   ${seen}
 endef
-rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
 # Path setup
 BLDPATH:=bin
@@ -24,21 +23,18 @@ DEBUG:=
 FC:=emfc.sh
 CC:=emcc
 WLD:=emcc
-FCFLAGS:=$(DEBUG) $(OPT) -Wall -I$(BLDPATH)
+FCFLAGS:=$(DEBUG) $(OPT) -Wall -I$(BLDPATH) -I$(BLDPATH)/lapack_test
 CCFLAGS:=$(DEBUG) --target=wasm32-unknown-emscripten $(OPT) -c -flto -emit-llvm -m32 -Isrc -Wall
 EMSFLAGS:=$(OPT) $(DEBUG) -m32 --cache /project/bin/.emscripten_cache -Wall -flto
-WLDFLAGS:=-s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' -s MODULARIZE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=1
+WLDFLAGS:=-s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' -s MODULARIZE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s USE_SDL=2 -s LEGACY_GL_EMULATION=1
 
 # Project config
 NAME:=assembly
-EXPORTS:=test_MOD_add test_MOD_eigen
-# EXPORTS:=test_MOD_add 
-LIBS:=/app/lib/libgfortran.a /app/lib/liblapack.a
-# /app/lapack/librefblas.a
-# LIBS:=
+EXPORTS:=test_MOD_add lapack_prb_MOD_lapack_prb_main test_eigen_MOD_test_eigen_main
+LIBS:=/app/lib/libgfortran.a /app/lib/liblapack.a /app/lib/librefblas.a
 EXPORTSD:=$(EXPORTS:%="___%")
-EXPORTFLAGS:=-s LINKABLE=1 -s EXPORT_ALL=1
-# EXPORTFLAGS:=-s EXPORTED_FUNCTIONS='[$(subst $(space),$(comma),$(strip $(EXPORTSD)))]'
+# EXPORTFLAGS:=-s LINKABLE=1 -s EXPORT_ALL=1
+EXPORTFLAGS:=-s EXPORTED_FUNCTIONS='[$(subst $(space),$(comma),$(strip $(EXPORTSD)))]'
 
 # Define sources and dependencies
 # IOlib
@@ -46,11 +42,11 @@ FSRCS_IOLIB:=$(SRCPATH)/iolib/iolib.f90
 CSRCS_IOLIB:=$(SRCPATH)/iolib/iolib.c
 MOD_IOLIB:=$(CSRCS_IOLIB:$(SRCPATH)/%=$(BLDPATH)/%.bc)
 # User project files
-FSRCS_USER:=$(SRCPATH)/test.f90 $(SRCPATH)/test_eigen.f90
+FSRCS_USER:=$(SRCPATH)/test.f90 $(SRCPATH)/lapack_test/test_eigen.f90 $(SRCPATH)/lapack_test/lapack_prb.f90
 CSRCS_USER:=
-MOD_USER:=$(BLDPATH)/test.f90.bc
+MOD_USER:=
 # Define dependencies
-$(FSRCS_USER): $(MOD_IOLIB) $(BLDPATH)/test_eigen.f90.bc
+$(FSRCS_USER): $(MOD_IOLIB)
 # Aggregate sources
 FSRCS:=$(FSRCS_IOLIB) $(FSRCS_USER)
 CSRCS:=$(CSRCS_IOLIB) $(CSRCS_USER)

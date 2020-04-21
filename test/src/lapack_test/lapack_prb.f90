@@ -1,3 +1,5 @@
+module lapack_prb
+  contains
 subroutine lapack_prb_main
 
     !*****************************************************************************80
@@ -56,7 +58,6 @@ subroutine lapack_prb_main
       write ( *, '(a)' ) ' '
       call timestamp ( )
     
-      stop
 end subroutine
     subroutine test01 ( )
     
@@ -325,7 +326,7 @@ end subroutine
     !
     !  Compute the L-Infinity norm of the matrix.
     !
-      anorm = r8mat_norm_li ( n, n, a )
+      anorm = r8mat_norm_li_func ( n, n, a )
     
       write ( *, '(a)' ) ' '
       write ( *, '(a,g14.6)' ) '  Matrix L-infinity norm is ', anorm
@@ -2209,7 +2210,7 @@ end subroutine
     
       return
     end
-    function r8mat_norm_li ( m, n, a )
+    function r8mat_norm_li_func ( m, n, a )
     
     !*****************************************************************************80
     !
@@ -2258,12 +2259,12 @@ end subroutine
     
       real   ( kind = 8 ) a(m,n)
       integer ( kind = 4 ) i
-      real ( kind = 8 ) r8mat_norm_li
+      real ( kind = 8 ) r8mat_norm_li_func
     
-      r8mat_norm_li = 0.0D+00
+      r8mat_norm_li_func = 0.0D+00
     
       do i = 1, m
-        r8mat_norm_li = max ( r8mat_norm_li, sum ( abs ( a(i,1:n) ) ) )
+        r8mat_norm_li_func = max ( r8mat_norm_li_func, sum ( abs ( a(i,1:n) ) ) )
       end do
     
       return
@@ -2681,4 +2682,4 @@ end subroutine
     
       return
     end
-    
+    end module

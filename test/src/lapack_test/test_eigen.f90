@@ -40,8 +40,6 @@ module test_eigen
           write ( *, '(a)' ) '  Normal end of execution.'
           write ( *, '(a)' ) ' '
           call timestamp ( )
-        
-          stop 0
         end
         subroutine r8symm_gen_test ( )
         

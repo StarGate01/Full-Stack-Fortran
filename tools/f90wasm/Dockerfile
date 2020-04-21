@@ -33,10 +33,12 @@ RUN cd gcc-build && \
     ./patch.sh && \
     make -j$(nproc) build
 
-# lapack
+# lapack and blas
 RUN git clone --depth=1 https://github.com/Reference-LAPACK/lapack.git
 COPY vendor/LAPACK/make.inc lapack/make.inc
 RUN cd lapack/SRC && \
+    emmake make -j$(nproc) single double && \
+    cd ../BLAS/SRC && \
     emmake make -j$(nproc) single double
 
 

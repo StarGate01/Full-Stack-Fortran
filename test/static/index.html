@@ -11,7 +11,10 @@
             module.onRuntimeInitialized = _ => {
                 const add = module.cwrap('__test_MOD_add', 'number', ['number', 'number']);
                 console.log("call from javascript: " + add(5, 7));
-                module.ccall('__test_MOD_eigen', null, []);
+                console.log("Calling lapack_prb");
+                module.ccall('__lapack_prb_MOD_lapack_prb_main', null, []);
+                console.log("Calling test_eigen");
+                module.ccall('__test_eigen_MOD_test_eigen_main', null, []);
             };
         </script>
     </body>
