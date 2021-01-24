@@ -5,7 +5,7 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted universe"
     echo "deb http://security.ubuntu.com/ubuntu/ trusty-security main" >> /etc/apt/sources.list && \
     apt-get update && \
     apt-get -y install --no-install-recommends \
-        build-essential python wget git gnutls-bin bash make ca-certificates xz-utils \
+        build-essential python3 wget git gnutls-bin bash make ca-certificates xz-utils \
         gfortran-4.6 g++-4.6 gcc-4.6 gcc-4.6-plugin-dev llvm-3.3-dev && \
     rm -rf /var/lib/apt/lists/*
 
@@ -21,12 +21,12 @@ RUN git clone --single-branch --branch="release_33" --depth=1 https://github.com
 # emscripten
 RUN git clone --depth=1 https://github.com/emscripten-core/emsdk.git && \
     cd emsdk && \
-    ./emsdk install "1.39.12" && \
-    ./emsdk activate "1.39.12"
+    ./emsdk install "2.0.12" && \
+    ./emsdk activate "2.0.12"
 COPY scripts /app/scripts
-ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/12.9.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
+ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/12.18.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
 
-# libgfortran
+# # libgfortran
 RUN git clone --single-branch --branch="releases/gcc-4.6" --depth=1 https://github.com/gcc-mirror/gcc.git
 COPY vendor/gfortran gcc-build
 RUN cd gcc-build && \
@@ -48,16 +48,15 @@ ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Berlin
 RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted universe" >> /etc/apt/sources.list && \
     echo "deb http://security.ubuntu.com/ubuntu/ trusty-security main" >> /etc/apt/sources.list && \
     apt-get update && \
-    apt-get -y install --no-install-recommends python bash make cmake gfortran-4.6 llvm-3.3 ca-certificates && \
+    apt-get -y install --no-install-recommends python3 bash make cmake gfortran-4.6 llvm-3.3 ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/bin /app/bin/
 COPY --from=build /app/emsdk /app/emsdk
-COPY --from=build /root/.emscripten /root/.emscripten
 COPY --from=build /app/gcc-build/bin/libgfortran.a /app/lapack/*.a /app/lib/
 
 COPY scripts /app/scripts
-ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/12.9.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
+ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/12.18.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
 ENV LIBRARY_PATH="/app/lib:${LIBRARY_PATH}"
 
 WORKDIR /app
