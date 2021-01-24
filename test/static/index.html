@@ -10,10 +10,16 @@
             createModule().then(function(Module) {
                 const add = Module.cwrap('__test_MOD_add', 'number', ['number', 'number']);
                 console.log("call from javascript: " + add(5, 7));
+                // console.log("Calling blas3_z_prb");
+                // Module.ccall('__blas3_z_prb_MOD_blas3_z_prb_main', null, []);
+                
                 console.log("Calling lapack_prb");
                 Module.ccall('__lapack_prb_MOD_lapack_prb_main', null, []);
                 console.log("Calling test_eigen");
                 Module.ccall('__test_eigen_MOD_test_eigen_main', null, []);
+
+                console.log("Calling test");
+                Module.ccall('__test_MOD_dotest', null, []);
             });
         </script>
         Open the developer console to see program output.

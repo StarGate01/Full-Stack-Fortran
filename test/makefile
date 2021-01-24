@@ -32,7 +32,7 @@ WLDFLAGS:=-s WASM=1 -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' -s MO
 
 # Project config
 NAME:=assembly
-EXPORTS:=test_MOD_add lapack_prb_MOD_lapack_prb_main test_eigen_MOD_test_eigen_main
+EXPORTS:=test_MOD_add test_MOD_dotest lapack_prb_MOD_lapack_prb_main test_eigen_MOD_test_eigen_main # blas3_z_prb_MOD_blas3_z_prb_main
 LIBS:=/app/lib/libgfortran.a /app/lib/liblapack.a /app/lib/librefblas.a
 EXPORTSD:=$(EXPORTS:%="___%")
 # EXPORTFLAGS:=-s LINKABLE=1 -s EXPORT_ALL=1
@@ -44,14 +44,16 @@ FSRCS_IOLIB:=$(SRCPATH)/iolib/iolib.f90
 CSRCS_IOLIB:=$(SRCPATH)/iolib/iolib.c
 MOD_IOLIB:=$(CSRCS_IOLIB:$(SRCPATH)/%=$(BLDPATH)/%.bc)
 # Project files
-FSRCS_USER:=$(SRCPATH)/test.f90 $(SRCPATH)/lapack_test/test_eigen.f90 $(SRCPATH)/lapack_test/lapack_prb.f90
+FSRCS_TEST:= #$(SRCPATH)/lapack_test/blas0.f90
+MOD_TEST:=$(FSRCS_TEST:$(SRCPATH)/%=$(BLDPATH)/%.bc)
+FSRCS_USER:=$(SRCPATH)/test.f90 $(SRCPATH)/lapack_test/test_eigen.f90 $(SRCPATH)/lapack_test/lapack_prb.f90 # $(SRCPATH)/lapack_test/blas3_z_prb.f90 
 CSRCS_USER:=
 MOD_USER:=
 
 # Define dependencies
-$(FSRCS_USER): $(MOD_IOLIB)
+$(FSRCS_USER): $(MOD_IOLIB) $(MOD_TEST)
 # Aggregate sources
-FSRCS:=$(FSRCS_IOLIB) $(FSRCS_USER)
+FSRCS:=$(FSRCS_IOLIB) $(FSRCS_USER) $(FSRCS_TEST)
 CSRCS:=$(CSRCS_IOLIB) $(CSRCS_USER)
 MODDIRS:=-I$(BLDPATH) -I$(BLDPATH)/iolib -I$(BLDPATH)/lapack_test
 

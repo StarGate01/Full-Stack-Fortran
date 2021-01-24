@@ -37,9 +37,9 @@ RUN cd gcc-build && \
 RUN git clone --depth=1 https://github.com/Reference-LAPACK/lapack.git
 COPY vendor/LAPACK/make.inc lapack/make.inc
 RUN cd lapack/SRC && \
-    emmake make -j$(nproc) single double && \
+    emmake make -j$(nproc) all && \
     cd ../BLAS/SRC && \
-    emmake make -j$(nproc) single double
+    emmake make -j$(nproc) all
 
 
 FROM ubuntu:18.04 as tool
