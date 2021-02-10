@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.0.0)
 
 enable_language(Fortran)
 
-SET(CMAKE_FC_COMPILER emfc.sh)
-
 set(fitpack_SRC
     fitpack/bispev.f
     fitpack/curfit.f
