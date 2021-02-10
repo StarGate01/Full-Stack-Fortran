@@ -60,7 +60,7 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted universe"
 
 COPY --from=build /app/bin /app/bin/
 COPY --from=build /app/emsdk /app/emsdk
-COPY --from=build /app/gcc-build/bin/libgfortran.a /app/lapack/*.a /app/fitpack/build/fitpack/*.a /app/lib/
+COPY --from=build /app/gcc-build/bin/libgfortran.a /app/lapack/*.a /app/fitpack/build/*.a /app/lib/
 
 COPY scripts /app/scripts
 ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/12.18.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
