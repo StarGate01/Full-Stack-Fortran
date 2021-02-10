@@ -46,8 +46,8 @@ RUN git clone --depth=1 https://github.com/jbaayen/fitpackpp.git
 COPY vendor/FITPACK/CMakeLists.txt fitpackpp/CMakeLists.txt
 RUN mkdir -p fitpackpp/build && \
     cd fitpackpp/build && \
-    emcmake FC=emfc.sh cmake .. && \
-    emmake FC=emfc.sh make -j$(nproc) all
+    emcmake cmake .. && \
+    emmake make -j$(nproc) all
 
 FROM ubuntu:18.04 as tool
 ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Berlin
