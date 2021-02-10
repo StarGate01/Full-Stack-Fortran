@@ -5,8 +5,8 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted universe"
     echo "deb http://security.ubuntu.com/ubuntu/ trusty-security main" >> /etc/apt/sources.list && \
     apt-get update && \
     apt-get -y install --no-install-recommends \
-        build-essential python3 wget git gnutls-bin bash make ca-certificates xz-utils \
-        gfortran-4.6 g++-4.6 gcc-4.6 gcc-4.6-plugin-dev llvm-3.3-dev && \
+    build-essential python3 wget git gnutls-bin bash make ca-certificates xz-utils \
+    gfortran-4.6 g++-4.6 gcc-4.6 gcc-4.6-plugin-dev llvm-3.3-dev cmake && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -41,6 +41,13 @@ RUN cd lapack/SRC && \
     cd ../BLAS/SRC && \
     emmake make -j$(nproc) all
 
+# FITPACK
+RUN git clone --depth=1 https://github.com/jbaayen/fitpackpp.git
+COPY vendor/FITPACK/CMakeLists.txt fitpackpp/CMakeLists.txt
+RUN mkdir -p fitpackpp/build && \
+    cd fitpackpp/build && \
+    emcmake cmake .. && \
+    emmake make -j$(nproc) all
 
 FROM ubuntu:18.04 as tool
 ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Berlin
@@ -53,7 +60,7 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted universe"
 
 COPY --from=build /app/bin /app/bin/
 COPY --from=build /app/emsdk /app/emsdk
-COPY --from=build /app/gcc-build/bin/libgfortran.a /app/lapack/*.a /app/lib/
+COPY --from=build /app/gcc-build/bin/libgfortran.a /app/lapack/*.a /app/fitpack/build/fitpack/*.a /app/lib/
 
 COPY scripts /app/scripts
 ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/12.18.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
