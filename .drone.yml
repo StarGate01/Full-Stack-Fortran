@@ -11,5 +11,6 @@ steps:
     repo: stargate01/f90wasm
     dockerfile: f90wasm/Dockerfile
     context: f90wasm
-
-
+  when:
+    branch:
+    - master
