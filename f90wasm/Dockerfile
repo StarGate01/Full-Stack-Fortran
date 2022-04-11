@@ -21,12 +21,12 @@ RUN git clone --single-branch --branch="release_33" --depth=1 https://github.com
 # emscripten
 RUN git clone --depth=1 https://github.com/emscripten-core/emsdk.git && \
     cd emsdk && \
-    ./emsdk install "2.0.12" && \
-    ./emsdk activate "2.0.12"
+    ./emsdk install "3.1.8" && \
+    ./emsdk activate "3.1.8"
 COPY scripts /app/scripts
-ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/12.18.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
+ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/14.18.2_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
 
-# # libgfortran
+# libgfortran
 RUN git clone --single-branch --branch="releases/gcc-4.6" --depth=1 https://github.com/gcc-mirror/gcc.git
 COPY vendor/gfortran gcc-build
 RUN cd gcc-build && \
@@ -49,6 +49,7 @@ RUN mkdir -p fitpackpp/build && \
     emcmake cmake .. && \
     emmake make -j$(nproc) all
 
+
 FROM ubuntu:18.04 as tool
 ENV DEBIAN_FRONTEND=noninteractive TZ=Europe/Berlin
 
@@ -63,9 +64,7 @@ COPY --from=build /app/emsdk /app/emsdk
 COPY --from=build /app/gcc-build/bin/libgfortran.a /app/lapack/*.a /app/fitpack/build/*.a /app/lib/
 
 COPY scripts /app/scripts
-ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/12.18.1_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
+ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/14.18.2_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
 ENV LIBRARY_PATH="/app/lib:${LIBRARY_PATH}"
 
 WORKDIR /app
-
-

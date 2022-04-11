@@ -1,0 +1,15 @@
+kind: pipeline
+name: default
+
+steps:
+- name: build  
+  image: plugins/docker
+  settings:
+    username: stargate01
+    password:
+      from_secret: docker_password
+    repo: stargate01/f90wasm
+    dockerfile: f90wasm/Dockerfile
+    context: f90wasm
+
+

@@ -9,7 +9,7 @@
             "type": "firefox",
             "request": "launch",
             "reAttach": true,
-            "url": "http://redbox-server.local:8080/",
+            "url": "http://localhost:8080/",
             "webRoot": "${workspaceFolder}/test/bin"
         },
         {
