@@ -7,7 +7,7 @@ FC:=emfc.sh
 CC:=emcc
 AR:=emar
 RANLIB:=emranlib
-INCPATH:=-I$(SRCPATH) -I$(SRCPATH)/config -I$(SRCPATH)/.. -I$(SRCPATH)/../.. -I$(SRCPATH)/../libgcc -I$(SRCPATH)/../gcc 
+INCPATH:=-I$(SRCPATH) -I$(SRCPATH)/config -I$(SRCPATH)/.. -I$(SRCPATH)/../.. -I$(SRCPATH)/../libgcc -I$(SRCPATH)/../gcc -I$(SRCPATH)/../libbacktrace
 FCFLAGS:=-O3 -Wall -I$(BLDPATH) -fallow-leading-underscore $(INCPATH)
 CCFLAGS:=--target=wasm32-unknown-emscripten -O3 -c -flto -emit-llvm -m32 -Isrc -Wall -Wno-implicit-function-declaration $(INCPATH)
 ARFLAGS:=cr
@@ -17,8 +17,7 @@ FSRCS:=$(wildcard $(SRCPATH)/generated/*.F90) $(wildcard $(SRCPATH)/intrinsics/*
 	$(wildcard $(SRCPATH)/generated/*.f90) $(wildcard $(SRCPATH)/intrinsics/*.f90)
 CSRCS:=$(filter-out $(wildcard $(SRCPATH)/runtime/*_inc.c),$(wildcard $(SRCPATH)/runtime/*.c))  \
 	$(filter-out $(wildcard $(SRCPATH)/intrinsics/*_inc.c),$(wildcard $(SRCPATH)/intrinsics/*.c)) \
-	$(wildcard $(SRCPATH)/generated/*.c) $(wildcard $(SRCPATH)/io/*.c) \
-	$(SRCPATH)/fmain.c 
+	$(wildcard $(SRCPATH)/generated/*.c) $(wildcard $(SRCPATH)/io/*.c)
 
 FBCS:=$(FSRCS:$(SRCPATH)/%=$(BLDPATH)/%.bc)
 CBCS:=$(CSRCS:$(SRCPATH)/%=$(BLDPATH)/%.bc)

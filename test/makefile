@@ -25,17 +25,17 @@ FC:=emfc.sh
 CC:=emcc
 WLD:=emcc
 FCFLAGS:=$(DEBUG) $(OPT) -Wall
-CCFLAGS:=$(DEBUG) --target=wasm32-unknown-emscripten $(OPT) -c -flto -emit-llvm -m32 -Isrc -Wall -s WASM=1
+CCFLAGS:=$(DEBUG) --target=wasm32-unknown-emscripten $(OPT) -c -emit-llvm -m32 -flto -Isrc -Wall -s WASM=1 
 EMSFLAGS:=$(OPT) $(DEBUG) -m32 -Wall -flto
-WLDFLAGS:=-s WASM=1 -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' -s MODULARIZE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s 'EXPORT_NAME="createModule"'
+WLDFLAGS:=-s WASM=1 -s MODULARIZE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s 'EXPORT_NAME="createModule"' -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' -s LLD_REPORT_UNDEFINED
 #  -s USE_SDL=2 -s LEGACY_GL_EMULATION=1
 
 # Project config
 NAME:=assembly
-EXPORTS:=test_MOD_add test_MOD_dotest lapack_prb_MOD_lapack_prb_main test_eigen_MOD_test_eigen_main # blas3_z_prb_MOD_blas3_z_prb_main
+EXPORTS:=#test_MOD_add test_MOD_dotest lapack_prb_MOD_lapack_prb_main test_eigen_MOD_test_eigen_main # blas3_z_prb_MOD_blas3_z_prb_main
 LIBS:=/app/lib/libgfortran.a /app/lib/liblapack.a /app/lib/librefblas.a
-EXPORTSD:=$(EXPORTS:%="___%")
-# EXPORTFLAGS:=-s LINKABLE=1 -s EXPORT_ALL=1
+EXPORTSD:=$(EXPORTS:%="___%") _iolib_test
+#EXPORTFLAGS:=-s LINKABLE=1 -s EXPORT_ALL=1
 EXPORTFLAGS:=-s EXPORTED_FUNCTIONS='[$(subst $(space),$(comma),$(strip $(EXPORTSD)))]'
 
 # Define sources and dependencies

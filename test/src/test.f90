@@ -18,7 +18,7 @@ module test
 
     end function
 
-    subroutine dotest()
+    subroutine canary_dotest_f90() bind(c, name="canary_dotest_c")
         integer, parameter :: N=2
 
         complex*16, parameter :: imag1 = cmplx(0.d0, 1.d0)
