@@ -19,7 +19,7 @@ CFLAGS = --target=wasm32 -O3 -c -flto -emit-llvm -m32 -s EXPORT_ALL=1 -Isrc -Wal
 #  and handle these quantities appropriately. As a consequence, one
 #  should not compile LAPACK with flags such as -ffpe-trap=overflow.
 #
-FC = emfc.sh
+FC = emfc.py
 FFLAGS = -O3 -Wall
 FFLAGS_DRV = $(FFLAGS)
 FFLAGS_NOOPT = -O0 -Wall

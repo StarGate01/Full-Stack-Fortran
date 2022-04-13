@@ -21,7 +21,7 @@ OPT:=-O3
 DEBUG:=
 
 # Compilers and flags
-FC:=emfc.sh
+FC:=emfc.py
 CC:=emcc
 WLD:=emcc
 FCFLAGS:=$(DEBUG) $(OPT) -Wall
