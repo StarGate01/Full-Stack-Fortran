@@ -21,8 +21,8 @@ RUN git clone --single-branch --branch="release_33" --depth=1 https://github.com
 # emscripten
 RUN git clone --depth=1 https://github.com/emscripten-core/emsdk.git && \
     cd emsdk && \
-    ./emsdk install "2.0.23" && \
-    ./emsdk activate "2.0.23"
+    ./emsdk install "2.0.25" && \
+    ./emsdk activate "2.0.25"
 COPY scripts /app/scripts
 ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/14.18.2_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
 
