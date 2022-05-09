@@ -26,8 +26,8 @@ CC:=emcc
 WLD:=emcc
 FCFLAGS:=$(DEBUG) $(OPT) -Wall
 CCFLAGS:=$(DEBUG) --target=wasm32-unknown-emscripten $(OPT) -c -flto -emit-llvm -m32 -Isrc -Wall -s WASM=1
-EMSFLAGS:=$(OPT) $(DEBUG) -m32 -Wall -flto -Wl,-u,atexit -Wl,-u,__cxa_atexit
-WLDFLAGS:=-s WASM=1 -s EXPORTED_RUNTIME_METHODS=ccall,cwrap -s MODULARIZE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s 'EXPORT_NAME="createModule"'
+EMSFLAGS:=$(OPT) $(DEBUG) -m32 -Wall -flto
+WLDFLAGS:=-Wl,-u,atexit -Wl,-u,__cxa_atexit -s WASM=1 -s EXPORTED_RUNTIME_METHODS=ccall,cwrap -s MODULARIZE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s 'EXPORT_NAME="createModule"'
 #  -s USE_SDL=2 -s LEGACY_GL_EMULATION=1
 
 # Project config
