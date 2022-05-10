@@ -22,6 +22,7 @@ Run `./test/test.sh` to compile the test application, and host it on http://loca
  - https://llvm.org/
  - https://emscripten.org/
  - https://github.com/smikes/femscripten
+ - [Aman Gupta Karmani (tmm1)](https://github.com/tmm1) for helping to update the Emscripten version used (#10, #12, #13)
 
  ## TLDR
 
