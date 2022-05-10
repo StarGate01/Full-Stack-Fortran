@@ -328,13 +328,13 @@
 #define HAVE_ERF 1
 
 /* Define to 1 if you have the `erfc' function. */
-#undef HAVE_ERFC
+#define HAVE_ERFC 1
 
 /* Define to 1 if you have the `erfcf' function. */
-#undef HAVE_ERFCF
+#define HAVE_ERFCF 1
 
 /* Define to 1 if you have the `erfcl' function. */
-#undef HAVE_ERFCL
+#define HAVE_ERFCL 1
 
 /* Define to 1 if you have the `erff' function. */
 #define HAVE_ERFF 1
@@ -367,7 +367,7 @@
 #define HAVE_FENV_H 1
 
 /* Define if have a usable __float128 type. */
-#undef HAVE_FLOAT128
+#define HAVE_FLOAT128 1
 
 /* Define to 1 if you have the <floatingpoint.h> header file. */
 #define HAVE_FLOATINGPOINT_H 1
@@ -532,7 +532,7 @@
 #define HAVE_JNL 1
 
 /* Define to 1 if you have the `kill' function. */
-#undef HAVE_KILL
+#define HAVE_KILL 1
 
 /* Define to 1 if you have the `ldexp' function. */
 #define HAVE_LDEXP 1
@@ -661,7 +661,7 @@
 #define HAVE_SCALBNL 1
 
 /* Define to 1 if you have the `secure_getenv' function. */
-#undef HAVE_SECURE_GETENV
+#define HAVE_SECURE_GETENV 1
 
 /* Define to 1 if you have the `setmode' function. */
 #undef HAVE_SETMODE

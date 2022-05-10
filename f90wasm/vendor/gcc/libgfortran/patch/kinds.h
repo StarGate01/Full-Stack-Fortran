@@ -46,4 +46,24 @@ typedef complex double GFC_COMPLEX_8;
 #define GFC_REAL_8_DIGITS 53
 #define GFC_REAL_8_RADIX 2
 
+typedef long double GFC_REAL_10;
+typedef complex long double GFC_COMPLEX_10;
+#define HAVE_GFC_REAL_10
+#define HAVE_GFC_COMPLEX_10
+#define GFC_REAL_10_HUGE 1.18973149535723176502e4932l
+#define GFC_REAL_10_LITERAL_SUFFIX l
+#define GFC_REAL_10_LITERAL(X) (X ## l)
+#define GFC_REAL_10_DIGITS 64
+#define GFC_REAL_10_RADIX 2
+
+typedef __float128 GFC_REAL_16;
+typedef _Complex float __attribute__((mode(TC))) GFC_COMPLEX_16;
+#define HAVE_GFC_REAL_16
+#define HAVE_GFC_COMPLEX_16
+#define GFC_REAL_16_HUGE 1.18973149535723176508575932662800702e4932q
+#define GFC_REAL_16_LITERAL_SUFFIX q
+#define GFC_REAL_16_LITERAL(X) (X ## q)
+#define GFC_REAL_16_DIGITS 113
+#define GFC_REAL_16_RADIX 2
+
 #include "kinds-override.h"

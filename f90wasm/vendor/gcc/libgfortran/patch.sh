@@ -2,7 +2,7 @@
 
 echo "Patching libgfortran"
 
-PATCHPATH=/app/gcc-build
+PATCHPATH=/app/libgfortran-build
 SRCPATH=/app/gcc/libgfortran
 
 cd $SRCPATH

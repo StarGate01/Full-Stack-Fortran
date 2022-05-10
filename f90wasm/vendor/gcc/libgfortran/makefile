@@ -1,15 +1,15 @@
-.PHONY: build
+.PHONY: build dirs
 
 SRCPATH:=/app/gcc/libgfortran
-BLDPATH:=/app/gcc-build/bin
+BLDPATH:=/app/libgfortran-build/bin
 
 FC:=emfc.sh
 CC:=emcc
 AR:=emar
 RANLIB:=emranlib
-INCPATH:=-I$(SRCPATH) -I$(SRCPATH)/config -I$(SRCPATH)/.. -I$(SRCPATH)/../.. -I$(SRCPATH)/../libgcc -I$(SRCPATH)/../gcc 
+INCPATH:=-I$(SRCPATH) -I$(SRCPATH)/config -I$(SRCPATH)/.. -I$(SRCPATH)/../.. -I$(SRCPATH)/../libgcc -I$(SRCPATH)/../gcc -I$(SRCPATH)/../libquadmath
 FCFLAGS:=-O3 -Wall -I$(BLDPATH) -fallow-leading-underscore $(INCPATH)
-CCFLAGS:=--target=wasm32-unknown-emscripten -O3 -c -flto -emit-llvm -m32 -Isrc -Wall -Wno-implicit-function-declaration $(INCPATH)
+CCFLAGS:=--target=wasm32-unknown-emscripten -O3 -c -flto -emit-llvm -m32 -Isrc -Wall -Wno-unused-function -Wno-implicit-function-declaration $(INCPATH)
 ARFLAGS:=cr
 
 # Gather sources
@@ -47,4 +47,3 @@ $(BLDPATH)/%.c.bc: $(SRCPATH)/%.c
 $(LIB): $(CBCS) $(FBCS)
 	$(AR) $(ARFLAGS) $@ $^
 	$(RANLIB) $@
-

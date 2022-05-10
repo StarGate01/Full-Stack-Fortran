@@ -26,10 +26,19 @@ RUN git clone --depth=1 https://github.com/emscripten-core/emsdk.git && \
 COPY scripts /app/scripts
 ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/14.18.2_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
 
-# libgfortran
+
+# GCC
 RUN git clone --single-branch --branch="releases/gcc-4.6" --depth=1 https://github.com/gcc-mirror/gcc.git
-COPY vendor/gfortran gcc-build
-RUN cd gcc-build && \
+
+# libquadmath
+COPY vendor/gcc/libquadmath libquadmath-build
+RUN cd libquadmath-build && \
+    ./patch.sh && \
+    make -j$(nproc) build
+
+# libgfortran
+COPY vendor/gcc/libgfortran libgfortran-build
+RUN cd libgfortran-build && \
     ./patch.sh && \
     make -j$(nproc) build
 
@@ -61,7 +70,7 @@ RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted universe"
 
 COPY --from=build /app/bin /app/bin/
 COPY --from=build /app/emsdk /app/emsdk
-COPY --from=build /app/gcc-build/bin/libgfortran.a /app/lapack/*.a /app/fitpackpp/build/*.a /app/lib/
+COPY --from=build /app/libgfortran-build/bin/libgfortran.a /app/libquadmath-build/bin/libquadmath.a /app/lapack/*.a /app/fitpackpp/build/*.a /app/lib/
 
 COPY scripts /app/scripts
 ENV PATH="/app/bin:/app/scripts:/app/emsdk:/app/emsdk/node/14.18.2_64bit/bin:/app/emsdk/upstream/emscripten:${PATH}"
