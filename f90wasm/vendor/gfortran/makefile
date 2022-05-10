@@ -24,6 +24,7 @@ FBCS:=$(FSRCS:$(SRCPATH)/%=$(BLDPATH)/%.bc)
 CBCS:=$(CSRCS:$(SRCPATH)/%=$(BLDPATH)/%.bc)
 LIB:=$(BLDPATH)/libgfortran.a
 
+
 # Control targets
 build: dirs $(LIB)
 
@@ -31,19 +32,18 @@ dirs:
 	cd $(SRCPATH) && \
 	find . -type d -exec mkdir -p -- $(BLDPATH)/{} \;
 
-# Fortran 70 and 95
+
+# Compile sources
 $(BLDPATH)/%.f90.bc: $(SRCPATH)/%.f90
 	$(FC) $(FCFLAGS) $(MODDIRS) -J $(dir $@) -o $@ -c $<
 $(BLDPATH)/%.F90.bc: $(SRCPATH)/%.F90
 	$(FC) $(FCFLAGS) $(MODDIRS) -J $(dir $@) -o $@ -c $<
 $(BLDPATH)/%.f.bc: $(SRCPATH)/%.f
 	$(FC) $(FCFLAGS) $(MODDIRS) -J $(dir $@) -o $@ -c $<
-
-# Regular C
 $(BLDPATH)/%.c.bc: $(SRCPATH)/%.c
 	$(CC) $(CCFLAGS) -o $@ $< 
 
-# Archive
+# Archive objects
 $(LIB): $(CBCS) $(FBCS)
 	$(AR) $(ARFLAGS) $@ $^
 	$(RANLIB) $@

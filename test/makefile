@@ -20,15 +20,17 @@ STAPATH:=static
 OPT:=-O3
 DEBUG:=
 
-# Compilers and flags
+# Tools and flags
 FC:=emfc.sh
 CC:=emcc
 WLD:=emcc
+AR:=emar
+RANLIB:=emranlib
 FCFLAGS:=$(DEBUG) $(OPT) -Wall
 CCFLAGS:=$(DEBUG) --target=wasm32-unknown-emscripten $(OPT) -c -flto -emit-llvm -m32 -Isrc -Wall
 EMSFLAGS:=$(OPT) $(DEBUG) -m32 -Wall -flto
-WLDFLAGS:=-Wl,-u,atexit -Wl,-u,__cxa_atexit -s WASM=1 -s EXPORTED_RUNTIME_METHODS=ccall,cwrap -s MODULARIZE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s 'EXPORT_NAME="createModule"'
-#  -s USE_SDL=2 -s LEGACY_GL_EMULATION=1
+WLDFLAGS:=-Wl,-u,atexit -Wl,-u,__cxa_atexit -s WASM=1 -s EXPORTED_RUNTIME_METHODS=ccall,cwrap -s MODULARIZE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=1 -s 'EXPORT_NAME="createModule"' #  -s USE_SDL=2 -s LEGACY_GL_EMULATION=1
+ARFLAGS:=cr
 
 # Project config
 NAME:=assembly
@@ -61,7 +63,8 @@ MODDIRS:=-I$(BLDPATH) -I$(BLDPATH)/iolib -I$(BLDPATH)/lapack_test
 FBCS:=$(FSRCS:$(SRCPATH)/%=$(BLDPATH)/%.bc)
 CBCS:=$(CSRCS:$(SRCPATH)/%=$(BLDPATH)/%.bc)
 BIN:=$(BLDPATH)/$(NAME).js
-OBJ:=$(BLDPATH)/$(NAME).bc
+ARCHIVE:=$(BLDPATH)/$(NAME).a
+
 
 # Control targets
 build: clean dirs $(BIN)
@@ -73,28 +76,27 @@ dirs:
 clean:
 	find $(SRCPATH) -name "*.mod" -type f -delete
 	$(shell mkdir -p $(BLDPATH))
-	cd $(BLDPATH) && rm -rf iolib lapack_test *.bc *.ll *.llpre *.mod *wasm *.html *.js
+	cd $(BLDPATH) && rm -rf iolib lapack_test *.bc *.ll *.llpre *.mod *.wasm *.html *.js
 
 purge:
 	rm -rf $(BLDPATH)
 
-# Fortran 95 and above
+
+# Compile sources
 $(BLDPATH)/%.f90.bc: $(SRCPATH)/%.f90
 	$(FC) $(FCFLAGS) $(MODDIRS) -J $(dir $@) -o $@ -c $<
 $(BLDPATH)/%.F90.bc: $(SRCPATH)/%.F90
 	$(FC) $(FCFLAGS) $(MODDIRS) -J $(dir $@) -o $@ -c $<
-# Legacy Fortran
 $(BLDPATH)/%.f.bc: $(SRCPATH)/%.f
 	$(FC) $(FCFLAGS) $(MODDIRS) -J $(dir $@) -o $@ -c $<
-
-# Regular C
 $(BLDPATH)/%.c.bc: $(SRCPATH)/%.c
 	$(CC) $(CCFLAGS) -o $@ $< 
 
-# Javascript finish
-$(OBJ): $(CBCS) $(FBCS) $(LIBS)
-	$(WLD) $(EMSFLAGS) -r -o $@ $^
+# Archive objects
+$(ARCHIVE): $(CBCS) $(FBCS)
+	$(AR) $(ARFLAGS) $@ $^
+	$(RANLIB) $@
 
-$(BIN): $(OBJ)
-	$(WLD) $(EMSFLAGS) $(WLDFLAGS) $(EXPORTFLAGS) -o $@ $< 
-	
+# Link and wrap in Javascript
+$(BIN): $(ARCHIVE) $(LIBS)
+	$(WLD) $(EMSFLAGS) $(WLDFLAGS) $(EXPORTFLAGS) -o $@ $^ 
