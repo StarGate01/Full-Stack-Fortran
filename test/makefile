@@ -34,9 +34,9 @@ WLDFLAGS:=-Wl,-u,atexit -Wl,-u,__cxa_atexit -s WASM=1 -s EXPORTED_RUNTIME_METHOD
 NAME:=assembly
 EXPORTS:=test_MOD_add test_MOD_dotest lapack_prb_MOD_lapack_prb_main test_eigen_MOD_test_eigen_main # blas3_z_prb_MOD_blas3_z_prb_main
 LIBS:=/app/lib/libgfortran.a /app/lib/liblapack.a /app/lib/librefblas.a
-EXPORTSD:=$(EXPORTS:%="___%")
+EXPORTSD:=$(EXPORTS:%=___%)
 # EXPORTFLAGS:=-s LINKABLE=1 -s EXPORT_ALL=1
-EXPORTFLAGS:=-s EXPORTED_FUNCTIONS='[$(subst $(space),$(comma),$(strip $(EXPORTSD)))]'
+EXPORTFLAGS:=-s EXPORTED_FUNCTIONS=$(subst $(space),$(comma),$(strip $(EXPORTSD)))
 
 # Define sources and dependencies
 # IOlib
